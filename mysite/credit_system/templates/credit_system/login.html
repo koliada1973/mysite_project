@@ -1,41 +1,40 @@
 {% extends "credit_system/base.html" %}
 
-{% block title %}Вхід до Особистого Кабінету{% endblock %}
-
-{% block page_title %}Вхід до Системи{% endblock %}
+{% block title %}Вхід до системи{% endblock %}
+{% block page_title %}Вхід до системи{% endblock %}
 
 {% block content %}
+<div class="card shadow-sm p-4 mx-auto" style="max-width: 400px;">
+  <h4 class="text-center mb-3">Авторизація</h4>
 
-<div class="login-container">
-    <h2 style="text-align: center; color: #3f51b5;">Вхід</h2>
+  {% if form.errors %}
+    <div class="alert alert-danger text-center">
+      Невірний логін або пароль. Спробуйте ще раз.
+    </div>
+  {% endif %}
 
-    {% if form.errors %}
-        <p style="color: red; text-align: center;">Ваш логін або пароль невірний. Спробуйте ще раз.</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    <div class="mb-3">
+      <label for="id_username" class="form-label">Логін</label>
+      <input type="text" name="username" id="id_username"
+             class="form-control" required autofocus>
+    </div>
+
+    <div class="mb-3">
+      <label for="id_password" class="form-label">Пароль</label>
+      <input type="password" name="password" id="id_password"
+             class="form-control" required>
+    </div>
+
+    {% if next %}
+      <input type="hidden" name="next" value="{{ next }}">
+    {% else %}
+      <input type="hidden" name="next" value="{% url 'index' %}">
     {% endif %}
 
-    <form method="post">
-        {% csrf_token %}
-
-        <div class="form-group">
-            <label for="{{ form.username.id_for_label }}">Логін:</label>
-            {{ form.username }}
-        </div>
-
-        <div class="form-group">
-            <label for="{{ form.password.id_for_label }}">Пароль:</label>
-            {{ form.password }}
-        </div>
-
-        {% if next %}
-            <input type="hidden" name="next" value="{{ next }}" />
-        {% else %}
-            <input type="hidden" name="next" value="{% url 'index' %}" />
-        {% endif %}
-
-        <button type="submit" class="login-btn">
-            Увійти
-        </button>
-    </form>
+    <button type="submit" class="btn btn-primary w-100">Увійти</button>
+  </form>
 </div>
-
 {% endblock %}
