@@ -56,7 +56,8 @@ class CustomUser(AbstractUser):
 
 class Credit(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='credits', verbose_name="Користувач")
-    summa_credit = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Основна сума кредиту")
+    number = models.CharField(max_length=100, verbose_name="Номер кредиту", blank=True)
+    summa_credit = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Сума кредиту")
     percent = models.DecimalField(max_digits=5, decimal_places=3, verbose_name="Добова відсоткова ставка (%)")
     start_date = models.DateField(verbose_name="Дата видачі")
     srok_months = models.IntegerField(verbose_name="Термін кредиту (місяці)")
@@ -65,14 +66,17 @@ class Credit(models.Model):
         help_text="День місяця (від 1 до 28).",
         default=15
     )
+    purpose = models.CharField(max_length=255, verbose_name="Ціль кредиту", blank=True)
+    note = models.TextField(verbose_name="Примітка", blank=True)
+    ostatok = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Залишок кредиту")
 
     def __str__(self):
-        return f"Кредит №{self.id} ({self.summa_credit} грн) для {self.user}"
-
+        return f"Кредит №{self.id} — {self.summa_credit} грн ({self.percent}%)"
 
     class Meta:
         verbose_name = "Кредит"
         verbose_name_plural = "Кредити"
+
 
 class Payment(models.Model):
     credit = models.ForeignKey(Credit, on_delete=models.CASCADE, related_name='payments', verbose_name="Кредит")

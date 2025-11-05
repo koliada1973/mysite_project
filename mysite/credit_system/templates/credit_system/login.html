@@ -1,0 +1,41 @@
+{% extends "credit_system/base.html" %}
+
+{% block title %}Вхід до Особистого Кабінету{% endblock %}
+
+{% block page_title %}Вхід до Системи{% endblock %}
+
+{% block content %}
+
+<div class="login-container">
+    <h2 style="text-align: center; color: #3f51b5;">Вхід</h2>
+
+    {% if form.errors %}
+        <p style="color: red; text-align: center;">Ваш логін або пароль невірний. Спробуйте ще раз.</p>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.username.id_for_label }}">Логін:</label>
+            {{ form.username }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.password.id_for_label }}">Пароль:</label>
+            {{ form.password }}
+        </div>
+
+        {% if next %}
+            <input type="hidden" name="next" value="{{ next }}" />
+        {% else %}
+            <input type="hidden" name="next" value="{% url 'index' %}" />
+        {% endif %}
+
+        <button type="submit" class="login-btn">
+            Увійти
+        </button>
+    </form>
+</div>
+
+{% endblock %}
