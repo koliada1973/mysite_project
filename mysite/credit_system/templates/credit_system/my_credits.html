@@ -1,0 +1,19 @@
+{% extends "credit_system/base.html" %}
+
+{% block page_title %}Мої кредити{% endblock %}
+
+{% block content %}
+    {% if credits %}
+        <ul>
+            {% for credit in credits %}
+{#                <li><a href="{% url 'credits:credit_detail' credit.id %}" class="fs-4">{{ credit.number }}</a></li>#}
+                <small id="number">
+                    <span>Номер: </span>
+                    <span>{{ credit.number }}</span>
+                </small><br>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Кредитів не знайдено.</p>
+    {% endif %}
+{% endblock %}
