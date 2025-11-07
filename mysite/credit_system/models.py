@@ -79,9 +79,17 @@ class Credit(models.Model):
     note = models.TextField(verbose_name="Примітка", blank=True)
     ostatok = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Залишок кредиту")
     closed = models.BooleanField(default=False, verbose_name="Кредит закрит")
+    last_pay_date = models.DateField(verbose_name="Дата останнього платежу", null=True, blank=True)
+    dolg_percent = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Борг по оплаті %")
 
     def __str__(self):
         return f"Кредит №{self.id} — {self.summa_credit} грн ({self.percent}%)"
+
+    # Для того, щоб в дату останього платеж підставлялась початкова дата при створенні:
+    def save(self, *args, **kwargs):
+        if not self.pk and not self.last_pay_date:
+            self.last_pay_date = self.start_date
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Кредит"
