@@ -1,0 +1,9 @@
+{% extends "credit_system/base.html" %}
+{% block page_title %}Не знайдено{% endblock %}
+{% block content %}
+<div class="text-center mt-5">
+    <h1 class="display-5 text-danger">404 — Сторінку не знайдено</h1>
+    <p>Запитаний кредит не існує або у вас немає до нього доступу.</p>
+    <a href="{% url 'index' %}" class="btn btn-outline-primary mt-3">Повернутись на головну</a>
+</div>
+{% endblock %}

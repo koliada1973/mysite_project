@@ -4,37 +4,35 @@
 {% block page_title %}Вхід до системи{% endblock %}
 
 {% block content %}
-<div class="card shadow-sm p-4 mx-auto" style="max-width: 400px;">
-  <h4 class="text-center mb-3">Авторизація</h4>
+    <div class="card shadow-sm p-4 mx-auto" style="max-width: 400px;">
+        <h4 class="text-center mb-3">Авторизація</h4>
 
-  {% if form.errors %}
-    <div class="alert alert-danger text-center">
-      Невірний логін або пароль. Спробуйте ще раз.
+        {% if form.errors %}
+            <div class="alert alert-danger text-center">
+              Невірний логін або пароль. Спробуйте ще раз.
+            </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label for="id_username" class="form-label">Логін</label>
+              <input type="text" name="username" id="id_username" class="form-control" required autofocus>
+            </div>
+
+            <div class="mb-3">
+              <label for="id_password" class="form-label">Пароль</label>
+              <input type="password" name="password" id="id_password" class="form-control" required>
+            </div>
+
+            {% if next %}
+              <input type="hidden" name="next" value="{{ next }}">
+            {% else %}
+              <input type="hidden" name="next" value="{% url 'index' %}">
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary w-100">Увійти</button>
+        </form>
     </div>
-  {% endif %}
-
-  <form method="post" novalidate>
-    {% csrf_token %}
-
-    <div class="mb-3">
-      <label for="id_username" class="form-label">Логін</label>
-      <input type="text" name="username" id="id_username"
-             class="form-control" required autofocus>
-    </div>
-
-    <div class="mb-3">
-      <label for="id_password" class="form-label">Пароль</label>
-      <input type="password" name="password" id="id_password"
-             class="form-control" required>
-    </div>
-
-    {% if next %}
-      <input type="hidden" name="next" value="{{ next }}">
-    {% else %}
-      <input type="hidden" name="next" value="{% url 'index' %}">
-    {% endif %}
-
-    <button type="submit" class="btn btn-primary w-100">Увійти</button>
-  </form>
-</div>
 {% endblock %}

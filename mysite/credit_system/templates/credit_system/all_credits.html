@@ -1,0 +1,48 @@
+{% extends "credit_system/base.html" %}
+
+{% block page_title %}Кредитний портфель{% endblock %}
+
+{% block content %}
+    {% if credits %}
+        <table class="table table-bordered table-hover">
+            <thead class="table-primary">
+                <tr>
+                    <th>Користувач</th>
+                    <th>Номер</th>
+                    <th>Сума</th>
+                    <th>Відсоток</th>
+                    <th>Дата видачі</th>
+                    <th>Залишок</th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for credit in credits %}
+                    <tr>
+                        <td>{{ credit.user.last_name }} {{ credit.user.first_name }}</td>
+                        <td>
+                            <a href="{% url 'credit_detail' credit.pk %}" class="text-decoration-none fw-bold text-primary">
+                                {{ credit.number }}
+                            </a>
+                        </td>
+                        <td>{{ credit.summa_credit }} грн</td>
+                        <td>{{ credit.percent }}%</td>
+                        <td>{{ credit.start_date|date:"d.m.Y" }}</td>
+                        <td>{{ credit.ostatok }} грн</td>
+                        <td>
+                        {% if credit.closed %}
+{#                            <span class="badge bg-success">Закритий</span>#}
+                            <span>Закритий</span>
+                        {% else %}
+{#                            <span class="badge bg-warning text-dark">Активний</span>#}
+                            <span>Активний</span>
+                        {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Кредитів не знайдено.</p>
+    {% endif %}
+{% endblock %}

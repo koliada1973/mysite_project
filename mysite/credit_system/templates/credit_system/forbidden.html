@@ -1,0 +1,10 @@
+{% extends "credit_system/base.html" %}
+{% block page_title %}Доступ заборонено{% endblock %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <h1 class="display-5 text-danger">403 — Доступ заборонено</h1>
+    <p>Ви не маєте права переглядати цей кредит.</p>
+    <a href="{% url 'index' %}" class="btn btn-outline-primary mt-3">Повернутись на головну</a>
+</div>
+{% endblock %}

@@ -11,19 +11,22 @@ numeric_validator = RegexValidator(
 
 class CustomUser(AbstractUser):
     """Розширена модель користувача (об’єднана з клієнтом)"""
+    # В адмін-панелі (тільки для адміна) буде випадаючий список з ролями:
     ROLE_CHOICES = (
         ('admin', 'Адмін'),
         ('manager', 'Менеджер'),
         ('client', 'Клієнт'),
     )
 
+    # Далі йдуть поля, яких немає в звичайному User:
+    # Роль:
     role = models.CharField(
         max_length=10,
         choices=ROLE_CHOICES,
         default='client',
         verbose_name="Роль користувача"
     )
-
+    # По-батькові:
     middle_name = models.CharField(max_length=100, verbose_name="По батькові", blank=True)
     IPN = models.CharField(
         max_length=10,
@@ -33,6 +36,9 @@ class CustomUser(AbstractUser):
         null=True,
         blank=True
     )
+    # Телефон, адреса, дата народження
+    # (це все для прикладу, бо реально телефонів може бути кілька,
+    # адреси поділяються на адресу прописки та проживання...)
     phone_number = models.CharField(max_length=20, verbose_name="Номер телефону", blank=True)
     address = models.CharField(max_length=255, verbose_name="Адреса", blank=True)
     date_of_birth = models.DateField(verbose_name="Дата народження", null=True, blank=True)
@@ -41,14 +47,17 @@ class CustomUser(AbstractUser):
         full_name = f"{self.last_name} {self.first_name} {self.middle_name}".strip()
         return full_name or self.username
 
+    # Метод перевірки чи є користувач менеджером або адміном:
     @property
     def is_manager(self):
         return self.role == 'manager' or self.is_superuser
 
+    # Метод для перевірки чи є користувач клієнтом:
     @property
     def is_client(self):
         return self.role == 'client'
 
+    # Ці змінні працюють в адмін-панелі на сторінці юзерів:
     class Meta:
         verbose_name = "Користувач"
         verbose_name_plural = "Користувачі"
@@ -69,6 +78,7 @@ class Credit(models.Model):
     purpose = models.CharField(max_length=255, verbose_name="Ціль кредиту", blank=True)
     note = models.TextField(verbose_name="Примітка", blank=True)
     ostatok = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Залишок кредиту")
+    closed = models.BooleanField(default=False, verbose_name="Кредит закрит")
 
     def __str__(self):
         return f"Кредит №{self.id} — {self.summa_credit} грн ({self.percent}%)"

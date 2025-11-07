@@ -16,8 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls import handler403
+from django.shortcuts import render
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('credit_system.urls')),
 ]
+
+def forbidden_view(request, exception=None):
+    return render(request, 'credit_system/forbidden.html', status=403)
+
+handler403 = forbidden_view

@@ -3,5 +3,27 @@
 {% block page_title %}Головна сторінка{% endblock %}
 
 {% block content %}
-<p>{{ content_message }}</p>
+    {#<p>{{ content_message }}</p>#}
+    <div class="text-center">
+{#        <p class="lead">{{ content_message }}</p>#}
+
+
+        {% if user.is_authenticated %}
+            <p class="lead">Доброго дня,  {{ user.first_name }}  {{ user.middle_name }}. <br>Оберіть потрібну опцію</p>
+            {#<a href="{% url 'user_credits_list' %}" class="btn btn-primary mt-3">Переглянути мої кредити</a>#}
+
+            <!-- Якщо користувач - це штатний працівник, то він бачить кнопку Кредитний портфель -->
+            {% if user.is_superuser or user.is_manager %}
+                <a href="{% url 'all_credits_list' %}" class="btn btn-primary mt-3">Переглянути всі кредити</a>
+
+                <!-- Якщо користувач - це клієнт, то він бачить кнопку Переглянути мої кредити -->
+            {% elif user.is_client %}
+                <a href="{% url 'user_credits_list' %}" class="btn btn-primary mt-3">Переглянути мої кредити</a>
+            {% endif %}
+
+        {% else %}
+            <a href="{% url 'login' %}" class="btn btn-outline-primary mt-3">Увійти</a>
+        {% endif %}
+
+    </div>
 {% endblock %}
