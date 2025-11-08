@@ -15,7 +15,7 @@
                 <table class="table table-bordered table-hover">
                     <thead class="table-primary">
                         <tr>
-                            <th>Сума</th>
+                            <th>Початкова сума</th>
                             <th>% ставка</th>
                             <th>Дата видачі</th>
                             <th>Срок кредиту</th>
@@ -52,8 +52,8 @@
                             <th>Платіж</th>
                             <th>Нараховані %</th>
                             <th>Погашені %</th>
-                            <th>Погашено кредиту</th>
                             <th>Борг по %</th>
+                            <th>Погашено кредиту</th>
                             <th>Залишок кредиту</th>
                         </tr>
                     </thead>
@@ -64,8 +64,8 @@
                                 <td>{{ payment.pay|floatformat:2 }} грн</td>
                                 <td>{{ payment.summa_percent|floatformat:2 }} грн</td>
                                 <td>{{ payment.pog_summa_percent|floatformat:2 }} грн</td>
-                                <td>{{ payment.pog_credit|floatformat:2 }} грн</td>
                                 <td>{{ payment.dolg_percent|floatformat:2 }} грн</td>
+                                <td>{{ payment.pog_credit|floatformat:2 }} грн</td>
                                 <td>{{ payment.ostatok|floatformat:2 }} грн</td>
                             </tr>
                         {% empty %}

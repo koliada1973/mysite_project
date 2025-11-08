@@ -1,0 +1,53 @@
+{% extends "credit_system/base.html" %}
+
+{% block page_title %}Список клієнтів{% endblock %}
+
+{% block content %}
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <strong>Список клієнтів</strong>
+        </div>
+        <div class="card-body">
+
+            {% if clients %}
+                <div class="table-responsive" style="max-height: 300px; overflow-y: scroll;">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>ПІБ</th>
+                                <th>ІПН</th>
+                                <th>Телефон</th>
+                                <th>Адреса</th>
+{#                                <th>Дії</th>#}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for client in clients %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'client_detail' client.pk %}?source=clients" class="text-decoration-none fw-bold text-primary">
+                                            {{ client.last_name }} {{ client.first_name }} {{ client.middle_name }}
+                                        </a>
+                                    </td>
+{#                                    <td>{{ client.last_name }} {{ client.first_name }} {{ client.middle_name }}</td>#}
+                                    <td>{{ client.IPN }}</td>
+                                    <td>{{ client.phone_number }}</td>
+                                    <td>{{ client.address }}</td>
+{#                                    <td>#}
+{#                                        <a href="{% url 'client_detail' client.pk %}" class="btn btn-sm btn-info">#}
+{#                                            Деталі#}
+{#                                        </a>#}
+{#                                    </td>#}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            {% else %}
+                <p>Клієнтів не знайдено.</p>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock %}

@@ -1,7 +1,8 @@
 from datetime import date
 
 from django import forms
-from credit_system.models import Credit, Payment
+from credit_system.models import Credit, Payment, CustomUser
+
 
 # class CreditDetailForm(forms.ModelForm):
 #     class Meta:
@@ -36,3 +37,24 @@ class AddPaymentForm(forms.Form):
         label="Сума платежу (грн)",
         widget=forms.NumberInput(attrs={"class": "form-control", "step": "0.01", 'autofocus': True})   # "class": "form-control" це для bootstrap
     )
+
+
+class ClientDetailForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = [
+            'username',  'last_name', 'first_name', 'middle_name',
+            'IPN', 'phone_number', 'address',
+            'date_of_birth', 'is_active'
+        ]
+        widgets = {
+            'username': forms.TextInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
+            'middle_name': forms.TextInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
+            'IPN': forms.NumberInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
+            'phone_number': forms.NumberInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
+            'address': forms.TextInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
+            'date_of_birth': forms.DateInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'disabled': True}),
+        }

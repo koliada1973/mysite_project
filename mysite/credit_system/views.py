@@ -5,13 +5,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, get_object_or_404, redirect
 
-from django.http import HttpResponse, request
+from django.http import HttpResponse, request, Http404
 from django.views import View
 from django.views.generic import ListView, DetailView
 
 
-from credit_system.forms import AddPaymentForm
-from credit_system.models import Credit, Payment
+from credit_system.forms import AddPaymentForm, ClientDetailForm
+from credit_system.models import Credit, Payment, CustomUser
 from credit_system.services import process_payment
 
 
@@ -24,7 +24,7 @@ def index(request):
     }
     return render(request, 'credit_system/index.html', context)
 
-
+# Для клієнтів показуємо список їх кредитів
 class UserCreditsView(LoginRequiredMixin, ListView):
     model = Credit
     template_name = 'credit_system/my_credits.html'
@@ -32,13 +32,13 @@ class UserCreditsView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
-            # Фільтруємо об'єкти Order, де поле 'user' дорівнює поточному користувачеві (self.request.user)
+            # Фільтруємо об'єкти Credit, де поле 'user' дорівнює поточному користувачеві (self.request.user)
             return Credit.objects.filter(user=self.request.user).order_by('closed', '-start_date')
 
         # Якщо з якоїсь причини не автентифікований, повертаємо пустий список
         return Credit.objects.none()
 
-# Для штатних працівників показувати список всіх кредитів
+# Для штатних працівників показуємо список всіх кредитів
 class AllCreditsView(LoginRequiredMixin, ListView):
     model = Credit
     template_name = 'credit_system/all_credits.html'
@@ -75,7 +75,7 @@ class AllCreditsView(LoginRequiredMixin, ListView):
 
 
 
-class CreditDetailView(LoginRequiredMixin, DetailView):  # Припустимо, що це твій клас
+class CreditDetailView(LoginRequiredMixin, DetailView):
     model = Credit
     template_name = 'credit_system/credit_detail.html'
     context_object_name = 'credit'
@@ -186,3 +186,46 @@ class AddPaymentView(LoginRequiredMixin, View):
 #             context['credit'] = get_object_or_404(Credit, **filters)
 #
 #         return context
+
+
+class ClientDetailView(LoginRequiredMixin, DetailView):
+    model = CustomUser
+    template_name = 'credit_system/client_detail.html'
+    context_object_name = 'client'
+
+    def get_object(self, queryset=None):
+        pk = self.kwargs.get(self.pk_url_kwarg)
+        client_object = get_object_or_404(self.model, pk=pk)
+
+        if not (self.request.user.is_superuser or self.request.user.is_manager):
+            if client_object != self.request.user:
+                raise Http404("Ви не маєте доступу до цього профілю клієнта.")
+
+        return client_object
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        client_object = context['client']
+
+        # Додаємо форму для відображення деталей
+        context['form'] = ClientDetailForm(instance=client_object)
+
+        # Додаємо список кредитів цього клієнта для менеджера/адміна
+        context['credits'] = Credit.objects.filter(user=client_object).order_by('-start_date')
+
+        return context
+
+
+
+class AllClientsView(LoginRequiredMixin, ListView):
+    model = CustomUser
+    template_name = 'credit_system/all_clients.html'
+    context_object_name = 'clients'
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_superuser or user.is_manager:
+            return CustomUser.objects.filter(role='client').order_by('last_name')
+        else:
+            raise Http404("У вас немає дозволу на перегляд списку клієнтів.")

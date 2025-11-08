@@ -21,7 +21,12 @@
                     <tbody>
                         {% for credit in credits %}
                             <tr>
-                                <td>{{ credit.user.last_name }} {{ credit.user.first_name }}</td>
+                                <td>
+                                    <a href="{% url 'client_detail' credit.user.pk %}?source=credits" class="text-decoration-none fw-bold text-primary">
+                                        {{ credit.user.last_name }} {{ credit.user.first_name }}
+                                    </a>
+                                </td>
+
                                 <td>
                                     <a href="{% url 'credit_detail' credit.pk %}" class="text-decoration-none fw-bold text-primary">
                                         {{ credit.number }}
@@ -34,10 +39,8 @@
                                 <td>
                                 {% if credit.closed %}
                                     <span class="badge bg-success">Закритий</span>
-{#                                    <span>Закритий</span>#}
                                 {% else %}
                                     <span class="badge bg-warning text-dark">Активний</span>
-{#                                    <span>Активний</span>#}
                                 {% endif %}
                                 </td>
                             </tr>
