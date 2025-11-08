@@ -106,10 +106,12 @@
     <!-- Якщо користувач - це штатний працівник, то він до списку всіх кредитів -->
     {% if user.is_superuser or user.is_manager %}
         <a href="{% url 'all_credits_list' %}" class="btn btn-outline-primary mt-3">← Повернутись до списку</a>
-
+        <a href="{% url 'credit_payments' credit.pk %}" class="btn btn-outline-primary mt-3">Переглянути платежі по кредиту</a>
+{#        <a href="{% url 'add_payment' credit.id %}" class="btn btn-primary mt-3">Додати платіж</a>#}
     <!-- Якщо користувач - це клієнт, то він повертається до списку своїх кредитів -->
     {% elif user.is_client %}
         <a href="{% url 'user_credits_list' %}" class="btn btn-outline-primary mt-3">← Повернутись до списку</a>
+        <a href="{% url 'credit_payments' credit.pk %}" class="btn btn-outline-primary mt-3">← Переглянути платежі по кредиту</a>
     {% endif %}
   </div>
 </div>

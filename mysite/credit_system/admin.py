@@ -93,20 +93,38 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(Credit)
 class CreditAdmin(admin.ModelAdmin):
-    list_display = ('id', 'number', 'user', 'summa_credit', 'percent', 'start_date', 'srok_months', 'ostatok')
-    # search_fields = ('user__username', 'user__last_name')
-    exclude = ('ostatok',)  # 🔹 поле "Залишок" не показуємо у формі
+    # Відображення у списку кредитів
+    list_display = (
+         'number','id', 'user', 'summa_credit', 'percent',
+        'start_date', 'srok_months', 'dolg_percent', 'ostatok', 'closed'
+    )
 
+    # Поля для створення та редагування
+    def get_fields(self, request, obj=None):
+        """Визначає, які поля показувати у формі"""
+        if obj:  # якщо редагуємо існуючий кредит
+            return [
+                'user', 'number', 'start_date', 'last_pay_date',
+                'summa_credit', 'srok_months', 'purpose', 'note',
+                'ostatok', 'percent', 'dolg_percent', 'closed'
+            ]
+        else:  # якщо створюємо новий кредит
+            return [
+                'user', 'number', 'summa_credit', 'start_date',
+                 'srok_months', 'percent', 'purpose', 'note',
+                 'closed'
+            ]
+
+    # При створенні нового кредиту копіюємо суму в залишок
     def save_model(self, request, obj, form, change):
-        # 🔹 Якщо це новий кредит — копіюємо суму у залишок
         if not change or obj.ostatok is None:
             obj.ostatok = obj.summa_credit
         super().save_model(request, obj, form, change)
 
+    # Фільтрація для різних користувачів
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        # Менеджер бачить усіх клієнтів, клієнт — лише свої кредити
-        if request.user.is_superuser or request.user.is_manager:
+        if request.user.is_superuser or getattr(request.user, 'is_manager', False):
             return qs
         return qs.filter(user=request.user)
 
