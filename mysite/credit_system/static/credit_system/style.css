@@ -6,3 +6,9 @@ body {
   background-color: #0d6efd;
   border-color: #0d6efd;
 }
+
+/* Стиль для вертикальної прокрутки платежів  */
+.scrollable-table-container {
+    max-height: 500px;
+    overflow-y: auto;  /* Дозволити вертикальну прокрутку, коли вміст перевищує max-height */
+}

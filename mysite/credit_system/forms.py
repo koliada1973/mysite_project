@@ -34,5 +34,5 @@ class AddPaymentForm(forms.Form):
     )
     pay = forms.FloatField(
         label="Сума платежу (грн)",
-        widget=forms.NumberInput(attrs={"class": "form-control", "step": "0.01"})   # "class": "form-control" це для bootstrap
+        widget=forms.NumberInput(attrs={"class": "form-control", "step": "0.01", 'autofocus': True})   # "class": "form-control" це для bootstrap
     )

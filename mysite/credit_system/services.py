@@ -8,9 +8,9 @@ def process_payment(credit, pay, date_pay, delta_days):
     Повертає словник з результатами.
     """
 
-    daily_percent = credit.percent / 100
-    dolg_percent = credit.dolg_percent
-    ostatok = credit.ostatok
+    daily_percent = round(credit.percent / 100, 2)
+    dolg_percent = round(credit.dolg_percent, 2)
+    ostatok = round(credit.ostatok, 2)
 
     summa_percent = 0
     pog_summa_percent = 0
@@ -24,21 +24,20 @@ def process_payment(credit, pay, date_pay, delta_days):
 
     # daily_rate = credit.percent / Decimal(100)
     summa_percent = round(ostatok * daily_percent * delta_days, 2)
-    print(f"summa_percent = {summa_percent}")
 
     # Загальна заборгованість по відсотках
-    total_summa = dolg_percent + summa_percent
+    total_summa = round(dolg_percent + summa_percent, 2)
     ost_payment = pay
 
     log = []  # для пояснення, що відбулося
 
     # Платіж менший, ніж відсотки
     if ost_payment < total_summa:
-        new_dolg_percent = total_summa - ost_payment
+        new_dolg_percent = round(total_summa - ost_payment, 2)
         if ost_payment <= dolg_percent:
             pog_summa_percent = 0
         else:
-            pog_summa_percent = ost_payment - total_summa
+            pog_summa_percent = round(ost_payment - total_summa, 2)
         credit.dolg_percent = new_dolg_percent
         log.append(f"Платіж {pay:.2f} грн покрив лише частину відсотків.")
         log.append(f"Новий борг по відсотках: {credit.dolg_percent:.2f} грн.")
@@ -52,7 +51,7 @@ def process_payment(credit, pay, date_pay, delta_days):
 
         # 2. Гасимо нараховані відсотки
         if ost_payment <= summa_percent:
-            pog_summa_percent = summa_percent - ost_payment
+            pog_summa_percent = round(summa_percent - ost_payment, 2)
             ost_payment = 0
         else:
             ost_payment -= summa_percent
@@ -73,6 +72,9 @@ def process_payment(credit, pay, date_pay, delta_days):
                 credit.ostatok = ostatok
                 ost_payment = 0
                 log.append(f"Погашено частину кредиту на {ost_payment:.2f} грн.")
+
+
+
 
     # Оновлюємо дату останнього платежу
     credit.last_pay_date = date_pay

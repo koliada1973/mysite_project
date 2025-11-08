@@ -29,31 +29,31 @@
                         <th>Статус</th>
                     </tr>
                 </thead>
-            <tbody>
-                {% for credit in credits %}
-                    <tr>
-{#                        <td>{{ credit.number }}</td>#}
-                        <td>
-                            <a href="{% url 'credit_detail' credit.pk %}" class="text-decoration-none fw-bold text-primary">
-                                    {{ credit.number }}
-                            </a>
-                        </td>
-                        <td>{{ credit.summa_credit }} грн</td>
-{#                        <td>{{ credit.percent }}%</td>#}
-                        <td>{{ credit.start_date|date:"d.m.Y" }}</td>
-                        <td>{{ credit.ostatok }} грн</td>
-                        <td>
-                        {% if credit.closed %}
-{#                            <span class="badge bg-success">Закритий</span>#}
-                            <span>Закритий</span>
-                        {% else %}
-{#                            <span class="badge bg-warning text-dark">Активний</span>#}
-                            <span>Активний</span>
-                        {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
+                <tbody>
+                    {% for credit in credits %}
+                        <tr>
+    {#                        <td>{{ credit.number }}</td>#}
+                            <td>
+                                <a href="{% url 'credit_detail' credit.pk %}" class="text-decoration-none fw-bold text-primary">
+                                        {{ credit.number }}
+                                </a>
+                            </td>
+                            <td>{{ credit.summa_credit }} грн</td>
+    {#                        <td>{{ credit.percent }}%</td>#}
+                            <td>{{ credit.start_date|date:"d.m.Y" }}</td>
+                            <td>{{ credit.ostatok }} грн</td>
+                            <td>
+                            {% if credit.closed %}
+    {#                            <span class="badge bg-success">Закритий</span>#}
+                                <span>Закритий</span>
+                            {% else %}
+    {#                            <span class="badge bg-warning text-dark">Активний</span>#}
+                                <span>Активний</span>
+                            {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
             </table>
         </ul>
     {% else %}

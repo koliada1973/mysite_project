@@ -3,30 +3,35 @@
 {% block page_title %}Додати платіж{% endblock %}
 
 {% block content %}
-<div class="card shadow-sm p-4">
-    <h4 class="text-primary mb-3">Додати платіж по кредиту №{{ credit.number }}</h4>
-
-    <p><strong>Клієнт:</strong> {{ credit.user }}</p>
-    <p><strong>Дата видачі:</strong> {{ credit.start_date }}</p>
-    <p><strong>Залишок:</strong> {{ credit.ostatok }} грн</p>
-
-    <form method="post" novalidate>
-        {% csrf_token %}
-        {{ form.non_field_errors }}
-        <div class="mb-3">
-            {{ form.date_pay.label_tag }}
-            {{ form.date_pay }}
-            {{ form.date_pay.errors }}
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <strong>Кредит №{{ credit.number }}</strong>
         </div>
-        <div class="mb-3">
-            {{ form.pay.label_tag }}
-            {{ form.pay }}
-            {{ form.pay.errors }}
+        <div class="card-body">
+        <h4 class="text-primary mb-3">Додати платіж по кредиту №{{ credit.number }}</h4>
+
+{#        <p><strong>Клієнт:</strong> {{ credit.user }}</p>#}
+    {#    <p><strong>Дата видачі:</strong> {{ credit.start_date }}</p>#}
+        <p><strong>Залишок:</strong> {{ credit.ostatok }} грн</p>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="mb-3">
+                {{ form.date_pay.label_tag }}
+                {{ form.date_pay }}
+                {{ form.date_pay.errors }}
+            </div>
+            <div class="mb-3">
+                {{ form.pay.label_tag }}
+                {{ form.pay }}
+                {{ form.pay.errors }}
+            </div>
+            <br><br>
+            <button type="submit" class="btn btn-success w-100">Зберегти платіж</button>
+        </form>
+
+        <a href="{% url 'credit_detail' credit.id %}" class="btn btn-outline-primary w-100 mt-3">← Назад до кредиту</a>
         </div>
-
-        <button type="submit" class="btn btn-success w-100">Зберегти платіж</button>
-    </form>
-
-    <a href="{% url 'credit_detail' credit.id %}" class="btn btn-outline-primary w-100 mt-3">← Назад до кредиту</a>
-</div>
+    </div>
 {% endblock %}
