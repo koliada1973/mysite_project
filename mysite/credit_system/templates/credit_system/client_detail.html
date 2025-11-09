@@ -1,13 +1,29 @@
 {% extends "credit_system/base.html" %}
 
-{% block page_title %}Деталі клієнта №{{ credit.user }}{% endblock %}
+{% block page_title %}Деталі клієнта{% endblock %}
 
 {% block content %}
 <div class="card shadow-sm p-4">
-    <h5 class="mb-4">Клієнт  №{{ credit.number }}</h5>
-    <form>
-        {{ form }}
-    </form>
+    <h5 class="mb-4">{{ client.last_name }} {{ client.first_name }} {{ client.middle_name }}</h5>
+{#    <form>#}
+{#        {{ form }}#}
+{#    </form>#}
+    <div class="card-body">
+{#        <p><strong>Прізвище:</strong> {{ client.last_name }}</p>#}
+{#        <p><strong>Ім'я:</strong> {{ client.first_name }}</p>#}
+{#        <p><strong>По-батькові:</strong> {{ client.middle_name }}</p>#}
+        <p><strong>Дата народження:</strong> {{ client.date_of_birth|date:"d.m.Y" }}</p>
+        <p><strong>ІПН:</strong> {{ client.IPN }}</p>
+        <p><strong>Телефон:</strong> {{ client.phone_number }}</p>
+        <p><strong>Адреса:</strong> {{ client.address }}</p>
+        <p><strong>Статус:</strong>
+            {% if client.is_active %}
+                <span class="badge bg-warning text-dark">Активний</span>
+            {% else %}
+                <span class="badge bg-success">Не активний</span>
+            {% endif %}
+        </p>
+  </div>
 
     <div class="mt-4">
         {% with source=request.GET.source %}

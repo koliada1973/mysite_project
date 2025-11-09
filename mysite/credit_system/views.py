@@ -24,6 +24,8 @@ def index(request):
     }
     return render(request, 'credit_system/index.html', context)
 
+
+
 # Для клієнтів показуємо список їх кредитів
 class UserCreditsView(LoginRequiredMixin, ListView):
     model = Credit
@@ -37,6 +39,8 @@ class UserCreditsView(LoginRequiredMixin, ListView):
 
         # Якщо з якоїсь причини не автентифікований, повертаємо пустий список
         return Credit.objects.none()
+
+
 
 # Для штатних працівників показуємо список всіх кредитів
 class AllCreditsView(LoginRequiredMixin, ListView):
@@ -53,28 +57,24 @@ class AllCreditsView(LoginRequiredMixin, ListView):
         return Credit.objects.filter(user=user)
 
 
-# class CreditDetailView(LoginRequiredMixin, DetailView):
-#     model = Credit
-#     template_name = 'credit_system/credit_detail.html'
-#     context_object_name = 'credit'
-#
-#     def get_queryset(self):
-#         user = self.request.user
-#         if user.is_superuser or user.is_manager:
-#             return Credit.objects.all()
-#         return Credit.objects.filter(user=user)
-#
-#     def get_object(self, queryset=None):
-#         credit = super().get_object(queryset)
-#         user = self.request.user
-#         if not (user.is_superuser or user.is_manager or credit.user == user):
-#             raise PermissionDenied
-#         return credit
+
+# Для штатних працівників показуємо список всіх клієнтів
+class AllClientsView(LoginRequiredMixin, ListView):
+    model = CustomUser
+    template_name = 'credit_system/all_clients.html'
+    context_object_name = 'clients'
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_superuser or user.is_manager:
+            return CustomUser.objects.filter(role='client').order_by('last_name')
+        else:
+            raise Http404("У вас немає дозволу на перегляд списку клієнтів.")
 
 
 
-
-
+# Деталі кредиту
 class CreditDetailView(LoginRequiredMixin, DetailView):
     model = Credit
     template_name = 'credit_system/credit_detail.html'
@@ -100,94 +100,7 @@ class CreditDetailView(LoginRequiredMixin, DetailView):
 
 
 
-
-class AddPaymentView(LoginRequiredMixin, View):
-    template_name = 'credit_system/add_payment.html'
-
-    def get(self, request, credit_id):
-        credit = get_object_or_404(Credit, pk=credit_id)
-        credit.refresh_from_db()  # на випадок, якщо дані не актуальні
-
-        # Додавати платіж могуть тільки штатні працівники
-        if not (request.user.is_superuser or request.user.is_manager):
-            raise PermissionDenied
-
-        form = AddPaymentForm()
-        return render(request, self.template_name, {'form': form, 'credit': credit})
-
-    def post(self, request, credit_id):
-        credit = get_object_or_404(Credit, pk=credit_id)
-
-        last_pay_date = credit.last_pay_date
-
-        if not (request.user.is_superuser or request.user.is_manager):
-            raise PermissionDenied
-
-        form = AddPaymentForm(request.POST)
-        if form.is_valid():
-            pay = form.cleaned_data['pay']
-            date_pay = form.cleaned_data['date_pay']
-
-            delta_days = (date_pay - last_pay_date).days
-
-            try:
-                result = process_payment(credit, pay, date_pay, delta_days)
-            except ValueError as e:
-                messages.error(request, str(e))
-                return render(request, self.template_name, {'form': form, 'credit': credit})
-
-            # У випадку, коли кредит закривається
-            # і сума платежу більше залишку кредиту - зменшуємо останній платіж:
-            if result['ost_payment'] > 0:
-                pay -= result['ost_payment']
-
-            # Зберігаємо сам платіж
-            Payment.objects.create(credit=credit, pay=pay, date_pay=date_pay, dolg_percent=result["dolg_percent"], ostatok=result["ostatok"], pog_credit=result["pog_credit"], pog_summa_percent=result["pog_summa_percent"], summa_percent=result["summa_percent"], ost_payment=result["ost_payment"])
-
-            # Повідомлення
-            messages.success(request, f"Платіж {pay:.2f} грн додано ({delta_days} днів, нараховано {result['summa_percent']:.2f} грн відсотків).")
-            for line in result['log']:
-                messages.info(request, line)
-
-            return redirect('credit_detail', pk=credit.id)
-
-        return render(request, self.template_name, {'form': form, 'credit': credit})
-
-
-# class PaymentsView(LoginRequiredMixin, ListView):
-#     model = Payment
-#     template_name = 'credit_system/credit_payments.html'
-#     context_object_name = 'payments'
-#
-#     def get_queryset(self):
-#         credit_id = self.kwargs.get('credit_id')
-#
-#         if not credit_id:
-#             return self.model.objects.none()
-#
-#         queryset = self.model.objects.filter(credit__id=credit_id)
-#
-#         # Перевіряємо, чи користувач не є суперкористувачем (якщо це так, він бачить усе)
-#         if not (self.request.user.is_superuser or self.request.user.is_manager):
-#             queryset = queryset.filter(credit__user=self.request.user)
-#
-#         return queryset.order_by('date_pay')
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         credit_id = self.kwargs.get('credit_id')
-#
-#         if credit_id:
-#             filters = {'pk': credit_id}
-#
-#             if not (self.request.user.is_superuser or self.request.user.is_manager):
-#                 filters['user'] = self.request.user
-#
-#             context['credit'] = get_object_or_404(Credit, **filters)
-#
-#         return context
-
-
+# Деталі клієнта
 class ClientDetailView(LoginRequiredMixin, DetailView):
     model = CustomUser
     template_name = 'credit_system/client_detail.html'
@@ -203,29 +116,66 @@ class ClientDetailView(LoginRequiredMixin, DetailView):
 
         return client_object
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        client_object = context['client']
-
-        # Додаємо форму для відображення деталей
-        context['form'] = ClientDetailForm(instance=client_object)
-
-        # Додаємо список кредитів цього клієнта для менеджера/адміна
-        context['credits'] = Credit.objects.filter(user=client_object).order_by('-start_date')
-
-        return context
 
 
+# Додавання платежу
+class AddPaymentView(LoginRequiredMixin, View):
+    template_name = 'credit_system/add_payment.html'
 
-class AllClientsView(LoginRequiredMixin, ListView):
-    model = CustomUser
-    template_name = 'credit_system/all_clients.html'
-    context_object_name = 'clients'
+    def get(self, request, credit_id):
+        credit = get_object_or_404(Credit, pk=credit_id)
+        credit.refresh_from_db()
 
-    def get_queryset(self):
-        user = self.request.user
+        if not (request.user.is_superuser or request.user.is_manager):
+            raise PermissionDenied  # <--- Зверніть увагу: ми кидаємо виняток, не повертаємо None
 
-        if user.is_superuser or user.is_manager:
-            return CustomUser.objects.filter(role='client').order_by('last_name')
-        else:
-            raise Http404("У вас немає дозволу на перегляд списку клієнтів.")
+        # Отримання даних для форми
+        last_pay_date = credit.last_pay_date
+        initial_data = {'last_pay_date': last_pay_date}
+
+        # Створення форми з початковими даними
+        form = AddPaymentForm(initial=initial_data)
+
+        return render(request, self.template_name, {'form': form, 'credit': credit})
+
+    def post(self, request, credit_id):
+        credit = get_object_or_404(Credit, pk=credit_id)
+
+        last_pay_date = credit.last_pay_date
+
+        if not (request.user.is_superuser or request.user.is_manager):
+            raise PermissionDenied
+
+        initial_data = {'last_pay_date': last_pay_date}
+        form = AddPaymentForm(request.POST, initial=initial_data)
+
+        if form.is_valid():
+            pay = form.cleaned_data['pay']
+            date_pay = form.cleaned_data['date_pay']
+
+            delta_days = (date_pay - last_pay_date).days
+
+            try:
+                result = process_payment(credit, pay, date_pay, delta_days)
+            except ValueError as e:
+                messages.error(request, str(e))
+                # Якщо помилка, повертаємо користувача на ту ж сторінку з формою
+                return render(request, self.template_name, {'form': form, 'credit': credit})
+
+            # У випадку, коли кредит закривається
+            # і сума платежу більше залишку кредиту - зменшуємо останній платіж:
+            if result['ost_payment'] > 0:
+                pay -= result['ost_payment']
+
+            # Зберігаємо сам платіж
+            Payment.objects.create(credit=credit, pay=pay, date_pay=date_pay, dolg_percent=result["dolg_percent"], ostatok=result["ostatok"], pog_credit=result["pog_credit"], pog_summa_percent=result["pog_summa_percent"], summa_percent=result["summa_percent"], ost_payment=result["ost_payment"])
+
+            # Повідомлення
+            # messages.success(request, f"Платіж {pay:.2f} грн додано ({delta_days} днів, нараховано {result['summa_percent']:.2f} грн відсотків).")
+            # for line in result['log']:
+            #     messages.info(request, line)
+
+            return redirect('credit_detail', pk=credit.id)
+
+        # Якщо з якихось причин дійшло до цього місця (помилки з даними) - повертаємо форму знову
+        return render(request, self.template_name, {'form': form, 'credit': credit})

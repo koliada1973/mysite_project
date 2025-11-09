@@ -14,9 +14,9 @@
 
             <!-- Якщо користувач - це штатний працівник, то він бачить кнопку Кредитний портфель -->
             {% if user.is_superuser or user.is_manager %}
+                <a href="{% url 'admin:index' %}" class="btn btn-warning mt-3">Перейти до адмін-панелі</a><br>
                 <a href="{% url 'all_credits_list' %}" class="btn btn-primary mt-3">Переглянути всі кредити</a><br>
-                <a href="{% url 'all_clients_list' %}" class="btn btn-primary mt-3">Переглянути всі клієнтів</a><br>
-                <a href="{% url 'admin:index' %}" class="btn btn-primary mt-3">Перейти до адмін-панелі</a>
+                <a href="{% url 'all_clients_list' %}" class="btn btn-primary mt-3">Переглянути всіх клієнтів</a><br>
 
                 <!-- Якщо користувач - це клієнт, то він бачить кнопку Переглянути мої кредити -->
             {% elif user.is_client %}

@@ -15,20 +15,20 @@
                 <table class="table table-bordered table-hover">
                     <thead class="table-primary">
                         <tr>
-                            <th>Початкова сума</th>
-                            <th>% ставка</th>
                             <th>Дата видачі</th>
-                            <th>Срок кредиту</th>
-                            <th>Залишок</th>
+                            <th>Срок кредиту, міс.</th>
+                            <th>Добова ставка, %</th>
+                            <th>Початкова сума, грн.</th>
+                            <th>Залишок кредиту, грн.</th>
                             <th>Статус</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>{{ credit.summa_credit }} грн</td>
-                            <td>{{ credit.percent }}%</td>
                             <td>{{ credit.start_date|date:"d.m.Y" }}</td>
                             <td>{{ credit.srok_months }} міс.</td>
+                            <td>{{ credit.percent }} %</td>
+                            <td>{{ credit.summa_credit }} грн</td>
                             <td>{{ credit.ostatok }} грн</td>
                             <td>
                             {% if credit.closed %}

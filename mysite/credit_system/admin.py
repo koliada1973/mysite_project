@@ -133,9 +133,14 @@ class CreditAdmin(admin.ModelAdmin):
 class PaymentAdmin(admin.ModelAdmin):
     list_display = ('credit', 'pay', 'date_pay')
 
+    # Заборона додавання нового платежу через адмін-панель,
+    # бо при додаванні платежу потрібно робити розрахунки (це робиться через сторінку add_payment.html)
+    def has_add_permission(self, request):
+        return False  # Повертаємо False, щоб приховати кнопку "Додати"
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser or request.user.is_manager:
             return qs
-        # Клієнт бачить тільки свої платежі
+        # Для простого клієнта вибираємо тільки його платежі
         return qs.filter(credit__user=request.user)

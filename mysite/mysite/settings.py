@@ -55,7 +55,7 @@ ROOT_URLCONF = 'mysite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "credit_system/templates"], # Для виходу з адмін-панелі на головну сторінку мого сайту
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

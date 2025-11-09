@@ -8,30 +8,61 @@
             <strong>Кредит №{{ credit.number }}</strong>
         </div>
         <div class="card-body">
-        <h4 class="text-primary mb-3">Додати платіж по кредиту №{{ credit.number }}</h4>
+            <h4 class="text-primary mb-3">Додати платіж по кредиту №{{ credit.number }}</h4>
 
-{#        <p><strong>Клієнт:</strong> {{ credit.user }}</p>#}
-    {#    <p><strong>Дата видачі:</strong> {{ credit.start_date }}</p>#}
-        <p><strong>Залишок:</strong> {{ credit.ostatok }} грн</p>
+            <p><strong>Залишок:</strong> {{ credit.ostatok }} грн</p>
 
-        <form method="post" novalidate>
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-            <div class="mb-3">
-                {{ form.date_pay.label_tag }}
-                {{ form.date_pay }}
-                {{ form.date_pay.errors }}
-            </div>
-            <div class="mb-3">
-                {{ form.pay.label_tag }}
-                {{ form.pay }}
-                {{ form.pay.errors }}
-            </div>
-            <br><br>
-            <button type="submit" class="btn btn-success w-100">Зберегти платіж</button>
-        </form>
+            <form method="post" novalidate>
+                {% csrf_token %}
 
-        <a href="{% url 'credit_detail' credit.id %}" class="btn btn-outline-primary w-100 mt-3">← Назад до кредиту</a>
+                {# 1. Відображення загальних помилок форми (якщо вони є) #}
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+
+                <div class="mb-3">
+                    {{ form.date_pay.label_tag }}
+
+                    {# Відображаємо поле #}
+                    {{ form.date_pay }}
+
+                    {# Відображення помилок конкретного поля з класом Bootstrap #}
+                    {% for error in form.date_pay.errors %}
+                        {# Клас d-block гарантує, що повідомлення відобразиться завжди, навіть якщо поле не отримало is-invalid #}
+                        <div class="invalid-feedback d-block">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+
+                <div class="mb-3">
+                    {{ form.pay.label_tag }}
+
+                    {# Відображаємо поле #}
+                    {{ form.pay }}
+
+                    {# Відображення помилок конкретного поля з класом Bootstrap #}
+                    {% for error in form.pay.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {# Приховане поле last_pay_date для валідації #}
+                {{ form.last_pay_date }}
+
+                <br><br>
+                <button type="submit" class="btn btn-success w-100">Зберегти платіж</button>
+            </form>
+
+            <a href="{% url 'credit_detail' credit.id %}" class="btn btn-outline-primary w-100 mt-3">← Назад до кредиту</a>
         </div>
     </div>
 {% endblock %}
