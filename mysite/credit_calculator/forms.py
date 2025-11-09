@@ -4,13 +4,13 @@ from datetime import date
 
 class CalculatorForm(forms.Form):
     start_date = forms.DateField(
-        label="Дата видачі кредиту",
+        label="Дата видачі",
         input_formats=["%Y-%m-%d"],
         initial=date.today,
         widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}))
 
     srok = forms.IntegerField(
-        label="Срок кредиту (міс.)",
+        label="Срок (міс.)",
         initial=12,
         widget=forms.NumberInput(attrs={"class": "form-control"}))
 
@@ -34,14 +34,14 @@ class CalculatorForm(forms.Form):
         (0.15, "0,15"),
     ]
     percent = forms.ChoiceField(
-        label="Ставка % (добова)",
+        label="% за добу",
         choices=PERCENT_CHOICES,
         initial=0.10,
         # help_text="Виберіть добову % ставку",
         widget=forms.Select(attrs={"class": "form-select"}))
 
     credit_sum = forms.FloatField(
-            label="Сума кредиту (грн)",
+            label="Сума (грн)",
             initial=10000,
             widget=forms.NumberInput(attrs={"class": "form-control", "step": "0.01", 'autofocus': True}))
 

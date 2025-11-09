@@ -6,53 +6,53 @@
             <strong>Кредитний калькулятор</strong>
         </div>
         <div class="card-body">
-            <div class="container mt-4">
+            <div class="container mt-0">
                 <form method="post" novalidate>
                     {% csrf_token %}
 
                     <div class="row g-2 align-items-end">
 
-                        <div class="col-md-2">
+                        <div class="col-md-2 text-center">
                             <div class="mb-3">
-                                <label for="{{ form.credit_sum.id_for_label }}" class="form-label small">{{ form.credit_sum.label }}</label>
+                                <label for="{{ form.credit_sum.id_for_label }}" class="form-label small fw-bold text-center">{{ form.credit_sum.label }}</label>
                                 {{ form.credit_sum }}
                                 {% for error in form.credit_sum.errors %}<div class="alert alert-danger p-1 mt-1 small">{{ error }}</div>{% endfor %}
                             </div>
                         </div>
 
-                        <div class="col-md-2">
+                        <div class="col-md-2 text-center">
                             <div class="mb-3">
-                                <label for="{{ form.percent.id_for_label }}" class="form-label small">{{ form.percent.label }}</label>
+                                <label for="{{ form.percent.id_for_label }}" class="form-label small fw-bold text-center">{{ form.percent.label }}</label>
                                 {{ form.percent }}
                                 {% for error in form.percent.errors %}<div class="alert alert-danger p-1 mt-1 small">{{ error }}</div>{% endfor %}
                             </div>
                         </div>
 
-                        <div class="col-md-2">
+                        <div class="col-md-2 text-center">
                             <div class="mb-3">
-                                <label for="{{ form.start_date.id_for_label }}" class="form-label small">{{ form.start_date.label }}</label>
+                                <label for="{{ form.start_date.id_for_label }}" class="form-label small fw-bold text-center">{{ form.start_date.label }}</label>
                                 {{ form.start_date }}
                                 {% for error in form.start_date.errors %}<div class="alert alert-danger p-1 mt-1 small">{{ error }}</div>{% endfor %}
                             </div>
                         </div>
 
-                        <div class="col-md-2">
+                        <div class="col-md-2 text-center">
                             <div class="mb-3">
-                                <label for="{{ form.srok.id_for_label }}" class="form-label small">{{ form.srok.label }}</label>
+                                <label for="{{ form.srok.id_for_label }}" class="form-label small fw-bold text-center">{{ form.srok.label }}</label>
                                 {{ form.srok }}
                                 {% for error in form.srok.errors %}<div class="alert alert-danger p-1 mt-1 small">{{ error }}</div>{% endfor %}
                             </div>
                         </div>
 
-                        <div class="col-md-2">
+                        <div class="col-md-2 text-center">
                             <div class="mb-3">
-                                <label for="{{ form.day_of_pay.id_for_label }}" class="form-label small">{{ form.day_of_pay.label }}</label>
+                                <label for="{{ form.day_of_pay.id_for_label }}" class="form-label small fw-bold text-center">{{ form.day_of_pay.label }}</label>
                                 {{ form.day_of_pay }}
                                 {% for error in form.day_of_pay.errors %}<div class="alert alert-danger p-1 mt-1 small">{{ error }}</div>{% endfor %}
                             </div>
                         </div>
 
-                        <div class="col-md-2">
+                        <div class="col-md-2 text-center">
                             <div class="mb-3">
                                 <div class="col-12 text-center">
                                     <button type="submit" class="btn btn-primary mt-2">Розрахувати</button>
@@ -64,7 +64,16 @@
 
                 {% if grafik %}
                 <hr>
-                    <h4>Результат розрахунку:</h4>
+{#                    <h5>Результат розрахунку:</h5>#}
+{#                    <p>Плановий платіж:<strong> {{ plan_pay }}</strong> грн.  Переплата: <strong> {{ pereplata }} </strong> грн.</p>#}
+                    <div class="d-flex align-items-center mb-3">
+                        <h5 class="mb-0 me-4">Результат розрахунку:</h5>
+                        <p class="mb-0">
+                            Плановий платіж: <strong> {{ plan_pay }}</strong> грн. &nbsp;&nbsp;
+                            Переплата: <strong> {{ pereplata }} </strong> грн.
+                        </p>
+                    </div>
+
                     <div class="table-responsive" style="max-height: 380px; overflow-y: scroll;">
                         <table class="table table-bordered table-hover">
                             <thead class="table-primary">
@@ -94,8 +103,6 @@
                             </tbody>
                         </table>
                     </div>
-
-
                 {% endif %}
             </div>
         </div>

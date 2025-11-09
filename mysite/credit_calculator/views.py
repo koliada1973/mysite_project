@@ -27,12 +27,14 @@ class CalculatorView(View):
             credit_sum = form.cleaned_data['credit_sum']
             day_of_pay = form.cleaned_data['day_of_pay']
 
-            plan_pay, grafik = rozrahunok_plan_pay(credit_sum, percent, srok, start_date, day_of_pay)
+            plan_pay, grafik, total_pays_sum, pereplata = rozrahunok_plan_pay(credit_sum, percent, srok, start_date, day_of_pay)
 
             context = {
                 'form': form,
                 'plan_pay': plan_pay,
                 'grafik': grafik,
+                'total_pays_sum': total_pays_sum,
+                'pereplata': pereplata,
             }
 
             return render(request, self.template_name, context)

@@ -96,6 +96,7 @@ def rozrahunok_plan_pay(credit_sum, daily_percent, months, start_date, pay_day, 
     current_date = start_date
     ostatok = to_cents(credit_sum)
     dolg_by_percents = 0
+    total_pays_sum = 0
 
     for m in range(1, months + 1):
         year, month = current_date.year, current_date.month
@@ -136,6 +137,8 @@ def rozrahunok_plan_pay(credit_sum, daily_percent, months, start_date, pay_day, 
             pay += ostatok
             ostatok = 0
 
+        total_pays_sum += pay
+
         grafik.append({
             "number": m,
             "date_of_pay": date_pay.strftime("%d.%m.%Y"),   # "%Y-%m-%d"
@@ -152,8 +155,8 @@ def rozrahunok_plan_pay(credit_sum, daily_percent, months, start_date, pay_day, 
 
         current_date = date_pay
 
-
-    return from_cents(pay), grafik
+    pereplata = from_cents(total_pays_sum) - credit_sum
+    return from_cents(pay), grafik, from_cents(total_pays_sum), round(pereplata, 2)
 
 
 
