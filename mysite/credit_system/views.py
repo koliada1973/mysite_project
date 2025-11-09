@@ -170,11 +170,6 @@ class AddPaymentView(LoginRequiredMixin, View):
             # Зберігаємо сам платіж
             Payment.objects.create(credit=credit, pay=pay, date_pay=date_pay, dolg_percent=result["dolg_percent"], ostatok=result["ostatok"], pog_credit=result["pog_credit"], pog_summa_percent=result["pog_summa_percent"], summa_percent=result["summa_percent"], ost_payment=result["ost_payment"])
 
-            # Повідомлення
-            # messages.success(request, f"Платіж {pay:.2f} грн додано ({delta_days} днів, нараховано {result['summa_percent']:.2f} грн відсотків).")
-            # for line in result['log']:
-            #     messages.info(request, line)
-
             return redirect('credit_detail', pk=credit.id)
 
         # Якщо з якихось причин дійшло до цього місця (помилки з даними) - повертаємо форму знову

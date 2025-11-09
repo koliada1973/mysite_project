@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'credit_system.apps.CreditSystemConfig',
+    'credit_calculator.apps.CreditCalculatorConfig',
 ]
 
 MIDDLEWARE = [

@@ -66,17 +66,17 @@ class AddPaymentForm(forms.Form):
 
 
 
-class AddClientForm(forms.Form):
-    date_pay = forms.DateField(
-        label="Дата платежу",
-        input_formats=["%Y-%m-%d"],
-        initial=date.today,
-        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"})     # "class": "form-control" це для bootstrap
-    )
-    pay = forms.FloatField(
-        label="Сума платежу (грн)",
-        widget=forms.NumberInput(attrs={"class": "form-control", "step": "0.01", 'autofocus': True})   # "class": "form-control" це для bootstrap
-    )
+# class AddClientForm(forms.Form):
+#     date_pay = forms.DateField(
+#         label="Дата платежу",
+#         input_formats=["%Y-%m-%d"],
+#         initial=date.today,
+#         widget=forms.DateInput(attrs={"type": "date", "class": "form-control"})     # "class": "form-control" для bootstrap
+#     )
+#     pay = forms.FloatField(
+#         label="Сума платежу (грн)",
+#         widget=forms.NumberInput(attrs={"class": "form-control", "step": "0.01", 'autofocus': True})   # "class": "form-control" для bootstrap
+#     )
 
 class ClientDetailForm(forms.ModelForm):
     class Meta:

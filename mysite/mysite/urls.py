@@ -22,6 +22,7 @@ from django.shortcuts import render
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('credit_system.urls')),
+    path('calculator/', include('credit_calculator.urls')),
 ]
 
 def forbidden_view(request, exception=None):
