@@ -77,9 +77,9 @@ def rozrahunok_plan_pay(credit_sum, daily_percent, months, start_date, pay_day, 
 
         if -tol <= final_ostatok <= tol:
             break
-        if final_ostatok > 0:  # залишок > 0 → платіж малий
+        if final_ostatok > 0:  # Якщо залишок > 0 што платіж малий
             low = pay
-        else:  # залишок < 0 → платіж завеликий
+        else:  # Якщо залишок < 0 то платіж завеликий
             high = pay
 
         pay = (low + high) // 2
@@ -133,8 +133,9 @@ def rozrahunok_plan_pay(credit_sum, daily_percent, months, start_date, pay_day, 
         # 3. Тіло
         pog_ostatok = ost_payment
         ostatok -= pog_ostatok
+        current_pay = pay
         if ostatok < 0:
-            pay += ostatok
+            current_pay = pay + ostatok
             ostatok = 0
 
         total_pays_sum += pay
@@ -143,7 +144,7 @@ def rozrahunok_plan_pay(credit_sum, daily_percent, months, start_date, pay_day, 
             "number": m,
             "date_of_pay": date_pay.strftime("%d.%m.%Y"),   # "%Y-%m-%d"
             "delta_days": days,
-            "payment": from_cents(pay),
+            "payment": from_cents(current_pay),
             "summa_percent": from_cents(percents),
             "pog_dolg_by_percents": from_cents(pog_dolg_by_percents),
             "pog_summa_percent": from_cents(pog_percents),
