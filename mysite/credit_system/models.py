@@ -44,6 +44,33 @@ class CustomUser(AbstractUser):
     address = models.CharField(max_length=255, verbose_name="Адреса", blank=True)
     date_of_birth = models.DateField(verbose_name="Дата народження", null=True, blank=True)
 
+    SEX_CHOICES = (
+        ('m', 'Чоловіча'),  # Значення в базі: 'm', Зображається: 'Чоловіча'
+        ('w', 'Жіноча'),  # Значення в базі: 'w', Зображається: 'Жіноча'
+    )
+    sex = models.CharField(
+        max_length=1,
+        choices=SEX_CHOICES,
+        default='m',
+        verbose_name="Стать",
+        blank=True,
+        null=True
+    )
+
+    address_registration = models.CharField(max_length=255, verbose_name="Адреса прописки", blank=True)
+    address_residential = models.CharField(max_length=255, verbose_name="Адреса проживання", blank=True)
+    place_of_birth = models.CharField(max_length=255, verbose_name="Місце народження", blank=True)
+    passport_series = models.CharField(max_length=2, verbose_name="Серія паспорту", blank=True)
+    passport_number = models.CharField(max_length=10, verbose_name="Номер паспорту", blank=True)
+    passport_vidan = models.CharField(max_length=255, verbose_name="Орган що видав паспорт", blank=True)
+    passport_date = models.DateField(verbose_name="Дата видачі паспорта", null=True, blank=True)
+    work_place = models.CharField(max_length=100, verbose_name="Місце роботи", blank=True)
+    position = models.CharField(max_length=100, verbose_name="Посада", blank=True)
+    notes = models.CharField(max_length=255, verbose_name="Нотатки", blank=True)
+
+
+
+
     def __str__(self):
         full_name = f"{self.last_name} {self.first_name} {self.middle_name}".strip()
         return full_name or self.username
@@ -78,6 +105,7 @@ class Credit(models.Model):
     closed = models.BooleanField(default=False, verbose_name="Кредит закрит")
     last_pay_date = models.DateField(null=True, blank=True, verbose_name="Дата останнього платежу")
     dolg_percent = models.FloatField(default=0, verbose_name="Борг по оплаті %")
+    plan_pay = models.FloatField(verbose_name="Плановий платіж", blank=True)
 
     def __str__(self):
         return f"Кредит №{self.number}"

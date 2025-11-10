@@ -1,31 +1,10 @@
 from datetime import date
 
 from django import forms
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.core.exceptions import ValidationError
 
 from credit_system.models import Credit, Payment, CustomUser
-
-
-# class CreditDetailForm(forms.ModelForm):
-#     class Meta:
-#         model = Credit
-#         fields = [
-#             'user', 'number', 'summa_credit', 'percent',
-#             'start_date', 'srok_months', 'ostatok',
-#             'purpose', 'note', 'closed'
-#         ]
-#         widgets = {
-#             'user': forms.TextInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
-#             'number': forms.TextInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
-#             'summa_credit': forms.NumberInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
-#             'percent': forms.NumberInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
-#             'start_date': forms.DateInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
-#             'srok_months': forms.NumberInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
-#             'ostatok': forms.NumberInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
-#             'purpose': forms.Textarea(attrs={'readonly': 'readonly', 'class': 'form-control', 'rows': 2}),
-#             'note': forms.Textarea(attrs={'readonly': 'readonly', 'class': 'form-control', 'rows': 2}),
-#             'closed': forms.CheckboxInput(attrs={'disabled': True}),
-#         }
 
 
 
@@ -66,18 +45,6 @@ class AddPaymentForm(forms.Form):
 
 
 
-# class AddClientForm(forms.Form):
-#     date_pay = forms.DateField(
-#         label="Дата платежу",
-#         input_formats=["%Y-%m-%d"],
-#         initial=date.today,
-#         widget=forms.DateInput(attrs={"type": "date", "class": "form-control"})     # "class": "form-control" для bootstrap
-#     )
-#     pay = forms.FloatField(
-#         label="Сума платежу (грн)",
-#         widget=forms.NumberInput(attrs={"class": "form-control", "step": "0.01", 'autofocus': True})   # "class": "form-control" для bootstrap
-#     )
-
 class ClientDetailForm(forms.ModelForm):
     class Meta:
         model = CustomUser
@@ -97,3 +64,20 @@ class ClientDetailForm(forms.ModelForm):
             'date_of_birth': forms.DateInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
             'is_active': forms.CheckboxInput(attrs={'disabled': True}),
         }
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = CustomUser
+        fields = (
+            'username', 'password1', 'password2',
+            'first_name', 'last_name', 'middle_name', 'sex',
+            'date_of_birth', 'place_of_birth', 'work_place', 'position',
+            'email', 'phone_number', 'notes', 'IPN',
+            'passport_series', 'passport_number', 'passport_vidan', 'passport_date',
+            'address_registration', 'address_residential', 'role', 'is_active'
+        )
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = CustomUser
+        fields = '__all__'

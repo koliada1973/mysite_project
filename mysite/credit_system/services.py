@@ -3,6 +3,13 @@ from datetime import date, datetime
 
 from credit_system.models import Credit
 
+def to_cents(x: float) -> int:
+    """Перетворення у копійки"""
+    return int(round(x * 100))
+
+def from_cents(x: int) -> float:
+    """Назад у гривні."""
+    return x / 100.0
 
 def process_payment(credit: Credit, pay, date_pay, delta_days) -> dict:
     """
@@ -47,7 +54,7 @@ def process_payment(credit: Credit, pay, date_pay, delta_days) -> dict:
 
     else:
         # 1. Гасимо борг по відсотках
-        ost_payment -= credit.dolg_percent
+        ost_payment =round(ost_payment - credit.dolg_percent, 2)
         new_dolg_percent = 0
         credit.dolg_percent = new_dolg_percent
 
@@ -57,22 +64,22 @@ def process_payment(credit: Credit, pay, date_pay, delta_days) -> dict:
             pog_summa_percent = round(summa_percent - ost_payment, 2)
             ost_payment = 0
         else:
-            ost_payment -= summa_percent
+            ost_payment = round(ost_payment - summa_percent, 2)
             pog_summa_percent = summa_percent
 
         # 3. Якщо залишилось — гасимо тіло кредиту
         if ost_payment > 0:
             if ost_payment >= credit.ostatok:
                 pog_credit = credit.ostatok
-                ost_payment -= pog_credit
+                ost_payment = round(ost_payment -pog_credit, 2)
                 ostatok = 0
-                credit.ostatok = ostatok
+                credit.ostatok = round(ostatok, 2)
                 credit.closed = True
                 # log.append("Кредит повністю погашено.")
             else:
                 pog_credit = ost_payment
-                ostatok-= pog_credit
-                credit.ostatok = ostatok
+                ostatok = round(ostatok - pog_credit, 2)
+                credit.ostatok = round(ostatok, 2)
                 ost_payment = 0
                 # log.append(f"Погашено частину кредиту на {ost_payment:.2f} грн.")
 

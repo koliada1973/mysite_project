@@ -1,46 +1,220 @@
+{#{% extends "credit_system/base.html" %}#}
+{##}
+{#{% block page_title %}Деталі клієнта{% endblock %}#}
+{##}
+{#{% block content %}#}
+{#    <div class="card shadow-sm">#}
+{#        <div class="card-header bg-primary text-white">#}
+{#                <strong>{{ client.last_name }} {{ client.first_name }} {{ client.middle_name }}</strong>#}
+{#        </div>#}
+{##}
+{#        <div class="card-body">#}
+{#            <div class="row">#}
+{#                <!-- Ліва колонка -->#}
+{#                <div class="col-md-6">#}
+{#                    <h6 class="text-primary border-bottom pb-2 mb-3">Основна інформація</h6>#}
+{#                    <table class="table table-bordered table-sm">#}
+{#                        <tr><th>ІПН</th><td>{{ client.IPN }}</td></tr>#}
+{#                        <tr><th>Дата народження</th><td>{{ client.date_of_birth|date:"d.m.Y" }}</td></tr>#}
+{#                        <tr><th>Місце народження</th><td>{{ client.place_of_birth }}</td></tr>#}
+{#                        <tr><th>Адреса проживання</th><td>{{ client.address_residential }}</td></tr>#}
+{#                        <tr><th>Стать</th>#}
+{#                            <td>#}
+{#                                {% if client.sex == 'm' %}Чоловіча{% elif client.sex == 'w' %}Жіноча{% endif %}#}
+{#                            </td>#}
+{#                        </tr>#}
+{#                        <tr><th>Статус</th>#}
+{#                            <td>#}
+{#                                {% if client.is_active %}#}
+{#                                    <span class="badge bg-warning text-dark">Активний</span>#}
+{#                                {% else %}#}
+{#                                    <span class="badge bg-success">Не активний</span>#}
+{#                                {% endif %}#}
+{#                            </td>#}
+{#                        </tr>#}
+{#                    </table>#}
+{##}
+{#                    <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">Робота</h6>#}
+{#                    <table class="table table-bordered table-sm">#}
+{#                        <tr><th>Місце роботи</th><td>{{ client.work_place }}</td></tr>#}
+{#                        <tr><th>Посада</th><td>{{ client.position }}</td></tr>#}
+{#                    </table>#}
+{#                </div>#}
+{##}
+{#                <!-- Права колонка -->#}
+{#                <div class="col-md-6">#}
+{#                    <h6 class="text-primary border-bottom pb-2 mb-3">Паспортні дані</h6>#}
+{#                    <table class="table table-bordered table-sm">#}
+{#                        <tr><th>Серія</th><td>{{ client.passport_series }}</td></tr>#}
+{#                        <tr><th>Номер</th><td>{{ client.passport_number }}</td></tr>#}
+{#                        <tr><th>Орган, що видав</th><td>{{ client.passport_vidan }}</td></tr>#}
+{#                        <tr><th>Дата видачі</th><td>{{ client.passport_date|date:"d.m.Y" }}</td></tr>#}
+{#                        <tr><th>Адреса прописки</th><td>{{ client.address_registration }}</td></tr>#}
+{#                    </table>#}
+{##}
+{#                    <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">Контакти</h6>#}
+{#                    <table class="table table-bordered table-sm">#}
+{#                        <tr><th>Телефон</th><td>{{ client.phone_number }}</td></tr>#}
+{#                        <tr><th>Email</th><td>{{ client.email }}</td></tr>#}
+{#                    </table>#}
+{#                </div>#}
+{#            </div>#}
+{##}
+{#            <!-- 🔽 Нотатки на всю ширину -->#}
+{#            {% if client.notes %}#}
+{#            <div class="row mt-4">#}
+{#                <div class="col-12">#}
+{#                    <div class="card border-secondary">#}
+{#                        <div class="card-header bg-light text-primary fw-bold">#}
+{#                            Нотатки#}
+{#                        </div>#}
+{#                        <div class="card-body">#}
+{#                            <p class="mb-0" style="white-space: pre-line;">{{ client.notes }}</p>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#            {% endif %}#}
+{#        </div>#}
+{##}
+{#        <!-- Кнопка повернення -->#}
+{#        <div class="mt-6">#}
+{#            {% with source=request.GET.source %}#}
+{#                {% if source == 'credits' %}#}
+{#                    <br><a href="{% url 'all_credits_list' %}" class="btn btn-primary mt-3">Повернутись до списку кредитів</a><br>#}
+    {#                <a href="{% url 'all_credits_list' %}" class="btn btn-outline-primary">#}
+    {#                    ← Повернутись до списку кредитів#}
+    {#                </a>#}
+{#                {% elif source == 'clients' %}#}
+{#                    <br><a href="{% url 'all_clients_list' %}" class="btn btn-primary mt-3">Повернутись до списку клієнтів</a><br>#}
+    {#                <a href="{% url 'all_clients_list' %}" class="btn btn-outline-primary">#}
+    {#                    ← Повернутись до списку клієнтів#}
+    {#                </a>#}
+{#                {% else %}#}
+{#                    <br><a href="{% url 'all_credits_list' %}" class="btn btn-primary mt-3">Повернутись до списку кредитів</a><br>#}
+    {#                <a href="{% url 'all_credits_list' %}" class="btn btn-outline-secondary">#}
+    {#                    ← Назад#}
+    {#                </a>#}
+{#                {% endif %}#}
+{#            {% endwith %}#}
+{#        </div>#}
+{#    </div>#}
+{#{% endblock %}#}
+{##}
+
+
+
 {% extends "credit_system/base.html" %}
 
 {% block page_title %}Деталі клієнта{% endblock %}
 
 {% block content %}
-<div class="card shadow-sm p-4">
-    <h5 class="mb-4">{{ client.last_name }} {{ client.first_name }} {{ client.middle_name }}</h5>
-{#    <form>#}
-{#        {{ form }}#}
-{#    </form>#}
-    <div class="card-body">
-{#        <p><strong>Прізвище:</strong> {{ client.last_name }}</p>#}
-{#        <p><strong>Ім'я:</strong> {{ client.first_name }}</p>#}
-{#        <p><strong>По-батькові:</strong> {{ client.middle_name }}</p>#}
-        <p><strong>Дата народження:</strong> {{ client.date_of_birth|date:"d.m.Y" }}</p>
-        <p><strong>ІПН:</strong> {{ client.IPN }}</p>
-        <p><strong>Телефон:</strong> {{ client.phone_number }}</p>
-        <p><strong>Адреса:</strong> {{ client.address }}</p>
-        <p><strong>Статус:</strong>
-            {% if client.is_active %}
-                <span class="badge bg-warning text-dark">Активний</span>
-            {% else %}
-                <span class="badge bg-success">Не активний</span>
-            {% endif %}
-        </p>
-  </div>
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+                <strong>{{ client.last_name }} {{ client.first_name }} {{ client.middle_name }}</strong>
+            </h4>
+        </div>
 
-    <div class="mt-4">
-        {% with source=request.GET.source %}
-            {% if source == 'credits' %}
-                <a href="{% url 'all_credits_list' %}" class="btn btn-outline-primary">
-                    ← Повернутись до списку кредитів
-                </a>
-            {% elif source == 'clients' %}
-                <a href="{% url 'all_clients_list' %}" class="btn btn-outline-primary">
-                    ← Повернутись до списку клієнтів
-                </a>
-            {% else %}
-                <a href="{% url 'all_credits_list' %}" class="btn btn-outline-secondary">
-                    ← Назад
-                </a>
+        <div class="card-body">
+            <h5 class="text-primary border-bottom pb-2 mb-3">Деталі клієнта</h5>
+
+            <table class="table table-bordered table-sm detail-table">
+                <tbody>
+                    <tr class="table-header">
+                        <td colspan="2" class="fw-bold bg-light">Основна інформація</td>
+                        <td colspan="2" class="fw-bold bg-light">Паспортні дані</td>
+                    </tr>
+
+                    <tr>
+                        <th style="width: 20%;">ІПН</th>
+                        <td style="width: 30%;">{{ client.IPN }}</td>
+                        <th style="width: 20%;">Серія</th>
+                        <td style="width: 30%;">{{ client.passport_series }}</td>
+                    </tr>
+                    <tr>
+                        <th>Дата народження</th>
+                        <td>{{ client.date_of_birth|date:"d.m.Y" }}</td>
+                        <th>Номер</th>
+                        <td>{{ client.passport_number }}</td>
+                    </tr>
+                    <tr>
+                        <th>Місце народження</th>
+                        <td>{{ client.place_of_birth }}</td>
+                        <th>Орган, що видав</th>
+                        <td>{{ client.passport_vidan }}</td>
+                    </tr>
+                    <tr>
+                        <th>Адреса проживання</th>
+                        <td>{{ client.address_residential }}</td>
+                        <th>Дата видачі</th>
+                        <td>{{ client.passport_date|date:"d.m.Y" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Стать</th>
+                        <td>
+                            {% if client.sex == 'm' %}Чоловіча{% elif client.sex == 'w' %}Жіноча{% endif %}
+                        </td>
+                        <th>Адреса прописки</th>
+                        <td>{{ client.address_registration }}</td>
+                    </tr>
+                    <tr>
+                        <th>Статус</th>
+                        <td>
+                            {% if client.is_active %}
+                                <span class="badge bg-warning text-dark">Активний</span>
+                            {% else %}
+                                <span class="badge bg-success">Не активний</span>
+                            {% endif %}
+                        </td>
+                        <td colspan="2"></td> </tr>
+
+                    <tr class="table-header">
+                        <td colspan="2" class="fw-bold bg-light mt-3">Робота</td>
+                        <td colspan="2" class="fw-bold bg-light mt-3">Контакти</td>
+                    </tr>
+                    <tr>
+                        <th>Місце роботи</th>
+                        <td>{{ client.work_place }}</td>
+                        <th>Телефон</th>
+                        <td>{{ client.phone_number }}</td>
+                    </tr>
+                    <tr>
+                        <th>Посада</th>
+                        <td>{{ client.position }}</td>
+                        <th>Email</th>
+                        <td>{{ client.email }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            {% if client.notes %}
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card border-secondary">
+                        <div class="card-header bg-light text-primary fw-bold">
+                            Нотатки
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-0" style="white-space: pre-line;">{{ client.notes }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             {% endif %}
-        {% endwith %}
+
+        </div>
+
+        <div class="card-footer bg-white border-0">
+            {% with source=request.GET.source %}
+                {% if source == 'credits' %}
+                    <a href="{% url 'all_credits_list' %}" class="btn btn-primary">Повернутись до списку кредитів</a>
+                {% elif source == 'clients' %}
+                    <a href="{% url 'all_clients_list' %}" class="btn btn-primary">Повернутись до списку клієнтів</a>
+                {% else %}
+                    <a href="{% url 'all_credits_list' %}" class="btn btn-primary">Повернутись до списку кредитів</a>
+                {% endif %}
+            {% endwith %}
+        </div>
     </div>
-</div>
 {% endblock %}

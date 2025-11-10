@@ -1,93 +1,129 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser, Credit, Payment
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
+from .forms import CustomUserCreationForm, CustomUserChangeForm
 
 admin.site.unregister(Group)    # Ховаємо групи в адмін-панелі
 
 
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
+    add_form = CustomUserCreationForm
+    form = CustomUserChangeForm
     model = CustomUser
-    list_display = ('username', 'last_name', 'first_name', 'role', 'IPN', 'phone_number', 'address')
 
-    # Поля, які показуються у формі редагування користувача
+    list_display = ('username', 'last_name', 'first_name', 'role', 'IPN', 'phone_number', 'address')
+    readonly_fields = ('last_login', 'date_joined')
+
+    # Поля у формі редагування (як раніше)
     fieldsets = (
-        (None, {'fields': ('username', 'password')}),
+        (None, {'fields': ('username', 'password',)}),
         ('Особиста інформація', {
-            'fields': ('first_name', 'last_name', 'middle_name', 'email', 'phone_number', 'address', 'date_of_birth'),
+            'fields': (
+                'first_name', 'last_name', 'middle_name', 'sex',
+                'date_of_birth', 'place_of_birth',
+                'work_place', 'position', 'email', 'phone_number', 'notes'
+            ),
         }),
         ('Ідентифікаційні дані', {
-            'fields': ('IPN',),
+            'fields': (
+                'IPN', 'passport_series', 'passport_number', 'passport_vidan',
+                'passport_date', 'address_registration', 'address_residential',
+            ),
         }),
         ('Роль та права доступу', {
-            'fields': ('role', 'is_active', 'last_login', 'date_joined'),
+            'fields': (
+                'role', 'is_active', 'is_staff', 'is_superuser',
+                'groups', 'user_permissions', 'last_login', 'date_joined',
+            ),
         }),
     )
 
-    # Поля, які показуються при створенні нового користувача
+    # Та сама структура — але для створення користувача (add form)
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
             'fields': (
                 'username', 'password1', 'password2',
-                'first_name', 'last_name', 'middle_name',
-                'email', 'phone_number', 'address', 'date_of_birth',
-                'IPN', 'role',
+            ),
+        }),
+        ('Особиста інформація', {
+            'fields': (
+                'first_name', 'last_name', 'middle_name', 'sex',
+                'date_of_birth', 'place_of_birth',
+                'work_place', 'position', 'email', 'phone_number', 'notes'
+            ),
+        }),
+        ('Ідентифікаційні дані', {
+            'fields': (
+                'IPN', 'passport_series', 'passport_number', 'passport_vidan',
+                'passport_date', 'address_registration', 'address_residential',
+            ),
+        }),
+        ('Роль та права доступу', {
+            'fields': (
+                'role', 'is_active', 'user_permissions'
             ),
         }),
     )
 
-    readonly_fields = ('last_login', 'date_joined')
+    # readonly_fields = ('last_login', 'date_joined')
 
-    # Фільтр "роль" тільки для суперюзера
-    def get_list_filter(self, request):
-        if request.user.is_superuser:
-            return ('role',)
-        return ()
+    # # Фільтр "роль" тільки для суперюзера
+    # def get_list_filter(self, request):
+    #     if request.user.is_superuser:
+    #         return ('role',)     # потрібно буде вилучити роль зі списків вище...
+    #     return ()
 
-    # Показуємо лише дозволених користувачів
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        if request.user.is_superuser:
-            return qs
-        return qs.filter(role='client')
-
-    # Автоматично призначаємо роль "client" для нових користувачів, створених менеджером
-    def save_model(self, request, obj, form, change):
-        if not request.user.is_superuser:
-            obj.role = 'client'
-
-        if obj.role == 'admin':
-            obj.is_superuser = True
-            obj.is_staff = True
-        elif obj.role == 'manager':
-            obj.is_superuser = False
-            obj.is_staff = True
-        else:
-            obj.is_superuser = False
-            obj.is_staff = False
-
-        super().save_model(request, obj, form, change)
-
-    # Сховати поле "роль" від менеджера
-    def get_fieldsets(self, request, obj=None):
-        fieldsets = list(self.fieldsets)
-        if not request.user.is_superuser:
-            filtered = []
-            for name, section in fieldsets:
-                fields = list(section.get('fields', []))
-                if 'role' in fields:
-                    fields.remove('role')
-                filtered.append((name, {'fields': fields}))
-            return filtered
-        return fieldsets
+    # # Показуємо лише дозволених користувачів
+    # def get_queryset(self, request):
+    #     qs = super().get_queryset(request)
+    #     if request.user.is_superuser:
+    #         return qs
+    #     return qs.filter(role='client')
+    #
+    # # Автоматично призначаємо роль "client" для нових користувачів, створених менеджером
+    # def save_model(self, request, obj, form, change):
+    #     if not request.user.is_superuser:
+    #         obj.role = 'client'
+    #
+    #     if obj.role == 'admin':
+    #         obj.is_superuser = True
+    #         obj.is_staff = True
+    #     elif obj.role == 'manager':
+    #         obj.is_superuser = False
+    #         obj.is_staff = True
+    #     else:
+    #         obj.is_superuser = False
+    #         obj.is_staff = False
+    #
+    #     super().save_model(request, obj, form, change)
+    #
+    # # Сховати поле "роль" від менеджера
+    # def get_fieldsets(self, request, obj=None):
+    #     fieldsets = list(self.fieldsets)
+    #     # if obj:
+    #     #     fieldsets = list(self.fieldsets)
+    #     # else:
+    #     #     fieldsets = list(self.add_fieldsets)
+    #
+    #
+    #     if not request.user.is_superuser:
+    #         filtered = []
+    #         for name, section in fieldsets:
+    #             fields = list(section.get('fields', []))
+    #             if 'role' in fields:
+    #                 fields.remove('role')
+    #             filtered.append((name, {'fields': fields}))
+    #         return filtered
+    #     return fieldsets
 
     # Сховати системні поля від менеджера
-    def get_readonly_fields(self, request, obj=None):
-        base = list(super().get_readonly_fields(request, obj))
-        base += ['is_staff', 'is_superuser', 'user_permissions', 'groups']
-        return base
+    # def get_readonly_fields(self, request, obj=None):
+    #     base = list(super().get_readonly_fields(request, obj))
+    #     base += ['is_staff', 'is_superuser', 'user_permissions', 'groups']
+    #     return base
 
 
 
