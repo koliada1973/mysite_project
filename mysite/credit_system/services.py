@@ -44,6 +44,7 @@ def process_payment(credit: Credit, pay, date_pay, delta_days) -> dict:
     # Платіж менший, ніж відсотки
     if ost_payment < total_summa:
         new_dolg_percent = round(total_summa - ost_payment, 2)
+        ost_payment = 0
         if ost_payment <= dolg_percent:
             pog_summa_percent = 0
         else:
