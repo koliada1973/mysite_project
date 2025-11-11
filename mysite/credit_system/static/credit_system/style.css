@@ -9,6 +9,113 @@ body {
 
 /* Стиль для вертикальної прокрутки платежів  */
 .scrollable-table-container {
-    max-height: 500px;
+    max-height: 400px;
     overflow-y: auto;  /* Дозволити вертикальну прокрутку, коли вміст перевищує max-height */
+}
+
+.table-responsive {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.table-responsive thead th {
+  position: sticky;
+  top: 0;
+  background-color: #cfe2ff; /* колір фону як у .table-primary */
+  z-index: 2;
+}
+
+.card {
+  overflow: visible !important;
+}
+
+.table-responsive {
+  max-height: 300px;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Стандартна таблиця Bootstrap */
+.table.table-bordered {
+  border-collapse: collapse;
+}
+
+/* Липкий заголовок */
+.table-responsive thead th {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  background-color: #cfe2ff;
+  border: 1px solid #b6d4fe;   /* чіткі розділення */
+  box-shadow: inset 0 -1px 0 #b6d4fe, 0 1px 1px rgba(0,0,0,0.04);
+  transform: translateZ(0);     /* стабілізує рендеринг */
+}
+
+/* Вирівнюємо нижню межу заголовка з першими рядками */
+.table thead th {
+  border-bottom: 2px solid #b6d4fe !important;
+}
+
+/* Для комірок тіла таблиці */
+.table tbody td {
+  border: 1px solid #dee2e6;
+}
+
+/* Ховер для рядків */
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Дрібне виправлення: щоб вертикальні лінії між заголовками не зникали */
+.table thead tr > th + th {
+  box-shadow: -1px 0 0 #b6d4fe inset;
+}
+
+
+
+/* === Додаткові стабілізатори для sticky-заголовка === */
+
+/* 1. Змушує браузер малювати thead у власному шарі (плавність руху) */
+.table-responsive thead {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* 2. Запобігає мікро-зсувам через антиаліасинг шрифтів */
+.table-responsive thead th {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 3. Для Chrome: трохи згладжує момент, коли sticky перераховує позицію */
+.table-responsive::-webkit-scrollbar {
+  width: 8px;
+}
+.table-responsive::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+/*!* 4. На випадок Safari — sticky може перескакувати на 1px *!*/
+/*@supports (-webkit-overflow-scrolling: touch) {*/
+/*  .table-responsive thead th {*/
+/*    transform: translate3d(0,0,0);*/
+/*  }*/
+/*}*/
+
+
+
+
+.bg-custom-gray {
+    /* Код #f8f9fa - це стандартний колір bg-light у Bootstrap */
+    /* Код #e9ecef - це стандартний колір bg-secondary у Bootstrap */
+
+    /* Використовуємо #e9ecef, він трохи темніший і зазвичай використовується для "secondary" елементів */
+    background-color: #e9ecef !important;
+}
+
+/* Або, якщо хочете свій власний відтінок, наприклад: */
+.bg-slightly-darker-light {
+    background-color: #eeeeee !important; /* Наприклад, #eee, що є трохи темнішим за #f8f9fa */
 }

@@ -39,13 +39,13 @@
                             {% for error in form.start_date.errors %}<div class="alert alert-danger p-1 mt-1 small">{{ error }}</div>{% endfor %}
                         </div>
 
-                        <div class="col-md-1">
+                        <div class="col-md-2">
                             <label for="{{ form.srok_months.id_for_label }}" class="form-label small fw-bold">{{ form.srok_months.label }}</label>
                             {{ form.srok_months }}
                             {% for error in form.srok_months.errors %}<div class="alert alert-danger p-1 mt-1 small">{{ error }}</div>{% endfor %}
                         </div>
 
-                        <div class="col-md-1">
+                        <div class="col-md-2">
                             <label for="{{ form.day_of_pay.id_for_label }}" class="form-label small fw-bold">{{ form.day_of_pay.label }}</label>
                             {{ form.day_of_pay }}
                             {% for error in form.day_of_pay.errors %}<div class="alert alert-danger p-1 mt-1 small">{{ error }}</div>{% endfor %}
@@ -80,7 +80,7 @@
                         </p>
                     </div>
 
-                    <div class="table-responsive" style="max-height: 380px; overflow-y: scroll;">
+                    <div class="table-responsive" style="max-height: 200px; overflow-y: scroll;">
                         <table class="table table-bordered table-hover">
                             <thead class="table-primary">
                                 <tr>

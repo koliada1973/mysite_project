@@ -30,11 +30,10 @@ def index(request):
 class UserCreditsView(LoginRequiredMixin, ListView):
     model = Credit
     template_name = 'credit_system/my_credits.html'
-    context_object_name = 'credits'  # Як називатиметься список об'єктів у шаблоні
+    context_object_name = 'credits'
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
-            # Фільтруємо об'єкти Credit, де поле 'user' дорівнює поточному користувачеві (self.request.user)
             return Credit.objects.filter(user=self.request.user).order_by('closed', '-start_date')
 
         # Якщо з якоїсь причини не автентифікований, повертаємо пустий список

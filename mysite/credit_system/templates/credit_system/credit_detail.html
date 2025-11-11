@@ -1,8 +1,12 @@
 {% extends "credit_system/base.html" %}
 
 
-
 {% block content %}
+
+{% load static %}
+
+
+
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
             <strong>Кредит №{{ credit.number }}</strong>
@@ -46,7 +50,7 @@
 
             <h5 class="mb-3">Історія платежів</h5>
 
-            <div class="table-responsive" style="max-height: 300px; overflow-y: scroll;">
+            <div class="table-responsive" style="max-height: 300px; overflow-y: auto; position: relative;">
                 <table class="table table-bordered table-hover">
                     <thead class="table-primary text-center">
                         <tr>

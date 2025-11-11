@@ -16,8 +16,8 @@
             <table class="table table-bordered table-sm detail-table">
                 <tbody>
                     <tr class="table-header">
-                        <td colspan="2" class="fw-bold bg-light">Основна інформація</td>
-                        <td colspan="2" class="fw-bold bg-light">Паспортні дані</td>
+                        <td colspan="2" class="fw-bold bg-custom-gray mt-3">Основна інформація</td>
+                        <td colspan="2" class="fw-bold bg-custom-gray mt-3">Паспортні дані</td>
                     </tr>
 
                     <tr>
@@ -39,33 +39,25 @@
                         <td>{{ client.passport_vidan }}</td>
                     </tr>
                     <tr>
-                        <th>Адреса проживання</th>
-                        <td>{{ client.address_residential }}</td>
-                        <th>Дата видачі</th>
-                        <td>{{ client.passport_date|date:"d.m.Y" }}</td>
-                    </tr>
-                    <tr>
                         <th>Стать</th>
                         <td>
                             {% if client.sex == 'm' %}Чоловіча{% elif client.sex == 'w' %}Жіноча{% endif %}
                         </td>
+                        <th>Дата видачі</th>
+                        <td>{{ client.passport_date|date:"d.m.Y" }}</td>
+                    </tr>
+                    <tr>
+
+                        <th>Адреса проживання</th>
+                        <td>{{ client.address_residential }}</td>
                         <th>Адреса прописки</th>
                         <td>{{ client.address_registration }}</td>
                     </tr>
-                    <tr>
-                        <th>Статус</th>
-                        <td>
-                            {% if client.is_active %}
-                                <span class="badge bg-warning text-dark">Активний</span>
-                            {% else %}
-                                <span class="badge bg-success">Не активний</span>
-                            {% endif %}
-                        </td>
-                        <td colspan="2"></td> </tr>
+
 
                     <tr class="table-header">
-                        <td colspan="2" class="fw-bold bg-light mt-3">Робота</td>
-                        <td colspan="2" class="fw-bold bg-light mt-3">Контакти</td>
+                        <td colspan="2" class="fw-bold bg-custom-gray mt-3">Робота</td>
+                        <td colspan="2" class="fw-bold bg-custom-gray mt-3">Контакти</td>
                     </tr>
                     <tr>
                         <th>Місце роботи</th>
@@ -79,6 +71,21 @@
                         <th>Email</th>
                         <td>{{ client.email }}</td>
                     </tr>
+
+
+                    <tr>
+                        <th>Статус</th>
+                        <td>
+                            {% if client.is_active %}
+                                <span class="badge bg-warning text-dark">Активний</span>
+                            {% else %}
+                                <span class="badge bg-success">Не активний</span>
+                            {% endif %}
+                        </td>
+                        <td colspan="2"></td>
+                    </tr>
+
+
                 </tbody>
             </table>
 
