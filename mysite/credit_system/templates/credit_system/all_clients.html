@@ -17,8 +17,8 @@
                                 <th>ПІБ</th>
                                 <th>ІПН</th>
                                 <th>Телефон</th>
-                                <th>Адреса</th>
-{#                                <th>Дії</th>#}
+{#                                <th>Адреса</th>#}
+                                <th>Статус</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -32,7 +32,14 @@
 {#                                    <td>{{ client.last_name }} {{ client.first_name }} {{ client.middle_name }}</td>#}
                                     <td>{{ client.IPN }}</td>
                                     <td>{{ client.phone_number }}</td>
-                                    <td>{{ client.address }}</td>
+                                    <td>
+                                        {% if client.is_active %}
+                                            <span class="badge bg-warning text-dark">Активний</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Не активний</span>
+                                        {% endif %}
+                                    </td>
+
 {#                                    <td>#}
 {#                                        <a href="{% url 'client_detail' client.pk %}" class="btn btn-sm btn-info">#}
 {#                                            Деталі#}

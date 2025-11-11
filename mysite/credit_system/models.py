@@ -3,6 +3,8 @@ from django.db import models
 from django.core.validators import RegexValidator
 from datetime import date
 
+from django.db.models import Max
+
 # Валідатор для ІПН — лише 10 цифр (ChatGPT)
 numeric_validator = RegexValidator(
     r'^\d{10}$',
@@ -92,6 +94,9 @@ class CustomUser(AbstractUser):
 class Credit(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='credits', verbose_name="Користувач")
     number = models.CharField(max_length=100, verbose_name="Номер кредиту", blank=True)
+    number1 = models.IntegerField(verbose_name="Порядковий номер", null=True, blank=True)
+    number2 = models.IntegerField(verbose_name="Рік видачі", null=True, blank=True)
+    number3 = models.CharField(max_length=20, verbose_name="Постфікс/Підрозділ", blank=True)
     summa_credit = models.FloatField(verbose_name="Сума кредиту")
     percent = models.FloatField(verbose_name="Добова відсоткова ставка (%)")
     start_date = models.DateField(verbose_name="Дата видачі")
@@ -105,22 +110,60 @@ class Credit(models.Model):
     dolg_percent = models.FloatField(default=0, verbose_name="Борг по оплаті %")
     plan_pay = models.FloatField(verbose_name="Плановий платіж", blank=True)
 
-    def __str__(self):
-        return f"Кредит №{self.number}"
+    def full_number(self):
+        # Логіка формування повного номера, використовуючи поточні значення
+        if self.number1 and self.number2:
+            # Доповнення нулями до 4 знаків
+            seq = str(self.number1).zfill(4)
+            # Формат: NNNN/YYYY-POSTFIX
+            return f"{seq}/{self.number2}-{self.number3}"
+        return "Н/Д"
 
-    # Для того, щоб в дату останього платежу підставлялась початкова дата при створенні:
+    def __str__(self):
+        # Виводимо повний номер, що зберігається в полі number
+        return f"Кредит №{self.number or self.full_number()}"
+
+    def generate_new_number1(self):
+        # Використовуємо self.start_date, оскільки рік залежить від дати видачі
+        current_year = self.start_date.year
+
+        max_number1 = Credit.objects.filter(number2=current_year).aggregate(Max('number1'))['number1__max']
+
+        return (max_number1 or 0) + 1
+
     def save(self, *args, **kwargs):
-        # Якщо поле не заповнене — виставляємо його при кожному збереженні
+        # 1. Логіка автозаповнення номера (працює лише для нового об'єкта)
+        if not self.pk:
+            # 1.1. Встановлюємо рік (number2)
+            if self.number2 is None:
+                # ВАЖЛИВО: self.start_date має бути встановлено перед save(),
+                # якщо воно не валідується формою, то буде помилка.
+                self.number2 = self.start_date.year
+
+            # 1.2. Встановлюємо порядковий номер (number1)
+            if self.number1 is None:
+                self.number1 = self.generate_new_number1()
+
+            # 1.3. Встановлюємо фіксований постфікс (number3)
+            # Якщо ви хочете, щоб він був "Credit", можете встановити його тут
+            if not self.number3:
+                self.number3 = "Credit"
+
+            # 1.4. Заповнюємо фінальне поле number
+            if not self.number:
+                self.number = self.full_number()
+
+                # 2. Встановлення last_pay_date
         if not self.last_pay_date and self.start_date:
             self.last_pay_date = self.start_date
 
         super().save(*args, **kwargs)
-        # Після збереження — підтягуємо актуальні дані з бази (цим ми вирішуємо проблему збереження дати в last_pay_date)
-        self.refresh_from_db(fields=["last_pay_date"])
+        # Прибираємо refresh_from_db, якщо він не потрібен для сторонніх полів.
 
     class Meta:
         verbose_name = "Кредит"
         verbose_name_plural = "Кредити"
+        unique_together = ('number1', 'number2')
 
 
 class Payment(models.Model):

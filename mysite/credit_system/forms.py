@@ -119,12 +119,19 @@ class CustomUserChangeForm(UserChangeForm):
 
 class AddCreditForm(forms.Form):
     # Поле для номеру кредиту
-    number = forms.CharField(
-        max_length=100,
-        required=False,  # Не обов'язкове поле
-        label="Номер кредиту",
-        widget=forms.TextInput(attrs={"class": "form-control"})
-    )
+    # number = forms.CharField(
+    #     max_length=100,
+    #     required=False,  # Не обов'язкове поле
+    #     label="Номер кредиту",
+    #     widget=forms.TextInput(attrs={"class": "form-control"})
+    # )
+    # number = forms.CharField(
+    #     max_length=100,
+    #     required=False,
+    #     label="Номер кредиту",
+    #     # help_text="Наприклад: 'ГРН', 'KIEV' або номер підрозділу. Не обов'язково.",
+    #     widget=forms.TextInput(attrs={"class": "form-control"})
+    # )
 
     start_date = forms.DateField(
         label="Дата видачі",

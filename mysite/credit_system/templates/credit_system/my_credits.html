@@ -3,60 +3,53 @@
 {% block page_title %}Мої кредити{% endblock %}
 
 {% block content %}
-    <h5 class="text-secondary mb-3">
-        Кредити користувача:
-        <span class="fw-bold">{{ request.user.last_name }} {{ request.user.first_name }} {{ request.user.middle_name }}</span>
-    </h5><br>
-    {% if credits %}
-        <ul>
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+                <span">Кредити користувача: <strong>{{ request.user.last_name }} {{ request.user.first_name }} {{ request.user.middle_name }}</strong></span>
+            </h4>
+        </div>
 
-{#            {% for credit in credits %}#}
-{#                <li><a href="{% url 'credits:credit_detail' credit.id %}" class="fs-4">{{ credit.number }}</a></li>#}
-{#                <small id="number">#}
-{#                    <span>Номер: </span>#}
-{#                    <span>{{ credit.number }}</span>#}
-{#                </small><br>#}
-
-{#            {% endfor %}#}
-            <table class="table table-bordered table-hover">
-                <thead class="table-primary">
-                    <tr>
-                        <th>Номер</th>
-                        <th>Сума</th>
-{#                        <th>Відсоток</th>#}
-                        <th>Дата видачі</th>
-                        <th>Залишок</th>
-                        <th>Статус</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for credit in credits %}
-                        <tr>
-    {#                        <td>{{ credit.number }}</td>#}
-                            <td>
-                                <a href="{% url 'credit_detail' credit.pk %}" class="text-decoration-none fw-bold text-primary">
-                                        {{ credit.number }}
-                                </a>
-                            </td>
-                            <td>{{ credit.summa_credit }} грн</td>
-    {#                        <td>{{ credit.percent }}%</td>#}
-                            <td>{{ credit.start_date|date:"d.m.Y" }}</td>
-                            <td>{{ credit.ostatok }} грн</td>
-                            <td>
-                            {% if credit.closed %}
-    {#                            <span class="badge bg-success">Закритий</span>#}
-                                <span>Закритий</span>
-                            {% else %}
-    {#                            <span class="badge bg-warning text-dark">Активний</span>#}
-                                <span>Активний</span>
-                            {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </ul>
-    {% else %}
-        <p>Кредитів не знайдено.</p>
-    {% endif %}
+        <div class="card-body">
+            {% if credits %}
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Номер</th>
+                                <th>Сума</th>
+                                <th>Відсоток</th>
+                                <th>Дата видачі</th>
+                                <th>Залишок</th>
+                                <th>Статус</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for credit in credits %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'credit_detail' credit.pk %}" class="text-decoration-none fw-bold text-primary">
+                                                {{ credit.number }}
+                                        </a>
+                                    </td>
+                                    <td>{{ credit.summa_credit }} грн</td>
+                                    <td>{{ credit.percent }}%</td>
+                                    <td>{{ credit.start_date|date:"d.m.Y" }}</td>
+                                    <td>{{ credit.ostatok }} грн</td>
+                                    <td>
+                                    {% if credit.closed %}
+                                        <span class="badge bg-success">Закритий</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Активний</span>
+                                    {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+            {% else %}
+                <p>Кредитів не знайдено.</p>
+            {% endif %}
+            <br><a href="{% url 'index' %}" class="btn btn-primary mt-3">Повернитись на головну</a><br>
+        </div>
+    </div>
 {% endblock %}

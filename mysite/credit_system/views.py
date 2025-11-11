@@ -176,8 +176,8 @@ class AddPaymentView(LoginRequiredMixin, View):
 
 
 class AddCreditView(LoginRequiredMixin, View):
-    template_name = 'credit_system/add_new_credit.html'  # Змінив назву шаблону
-    form_class = AddCreditForm  # Використовуємо нову форму
+    template_name = 'credit_system/add_new_credit.html'
+    form_class = AddCreditForm
 
     def dispatch(self, request, *args, **kwargs):
         # Перевірка дозволів: лише менеджери та адміни
@@ -215,15 +215,14 @@ class AddCreditView(LoginRequiredMixin, View):
 
             # Дані для розрахунку/збереження
             credit_sum = cleaned_data['credit_sum']
-            percent = cleaned_data['percent'] / 100  # Якщо ваш калькулятор очікує 0.001 (0.1%), а не 0.1 (10%)
+            percent_for_calc = cleaned_data['percent'] / 100
             srok_months = cleaned_data['srok_months']
             start_date = cleaned_data['start_date']
             day_of_pay = cleaned_data['day_of_pay']
 
             # РОЗРАХУНОК (завжди відбувається, якщо форма валідна)
-            # Викликаємо функцію розрахунку
             plan_pay, grafik, total_pays_sum, pereplata = rozrahunok_plan_pay(
-                credit_sum, percent, srok_months, start_date, day_of_pay
+                credit_sum, percent_for_calc, srok_months, start_date, day_of_pay
             )
 
             # Додаємо результати розрахунку до контексту
@@ -236,21 +235,24 @@ class AddCreditView(LoginRequiredMixin, View):
 
             # ЗБЕРЕЖЕННЯ (якщо натиснуто "Створити кредит")
             if action == 'create_credit':
-                new_credit = Credit.objects.create(
+                new_credit = Credit(
                     user=client,
-                    number=cleaned_data.get('number', ''),
+
                     summa_credit=credit_sum,
-                    percent=cleaned_data['percent'],  # Зберігаємо як є у формі
+                    percent=cleaned_data['percent'],
                     start_date=start_date,
                     srok_months=srok_months,
                     day_of_pay=day_of_pay,
                     purpose=cleaned_data.get('purpose', ''),
                     note=cleaned_data.get('note', ''),
-                    ostatok=credit_sum,  # Залишок = Сума кредиту
-                    plan_pay=plan_pay,  # Беремо з результату розрахунку
+                    ostatok=credit_sum,
+                    plan_pay=plan_pay,
                 )
 
+                new_credit.save()
+
                 messages.success(request, f'Кредит №{new_credit.number} для клієнта {client} успішно створено!')
+                # Використовуємо new_credit.number, оскільки повний номер тепер там зберігається
                 return redirect('credit_detail', pk=new_credit.pk)
 
             # Якщо не "Створити кредит", то повертаємо форму з результатами розрахунку
