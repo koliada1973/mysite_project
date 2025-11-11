@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
+from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 
 from django.http import HttpResponse, request, Http404
@@ -41,7 +42,7 @@ class UserCreditsView(LoginRequiredMixin, ListView):
 
 
 
-# Для штатних працівників показуємо список всіх кредитів
+
 class AllCreditsView(LoginRequiredMixin, ListView):
     model = Credit
     template_name = 'credit_system/all_credits.html'
@@ -49,15 +50,49 @@ class AllCreditsView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        # Якщо користувач — менеджер або адмін, показуємо всі кредити
+
+        base_queryset = Credit.objects.select_related('user')
+
         if user.is_superuser or user.is_manager:
-            return Credit.objects.all().order_by('closed', '-start_date')
-        # Інакше повертаємо лише свої кредити (на випадок, якщо клієнт спробує вручну відкрити сторінку)
-        return Credit.objects.filter(user=user)
+            queryset = base_queryset.all()
+        else:
+            # Для клієнта: повертаємо лише його кредити
+            queryset = base_queryset.filter(user=user)
+
+
+        query = self.request.GET.get('q')
+        if query:
+            query_cleaned = query.strip()
+
+            # (номер кредиту АБО прізвище АБО ім'я АБО по-батькові)
+            lookup = (
+                # Пошук за номером кредиту
+                    Q(number__icontains=query_cleaned) |
+
+                    # Пошук за прізвищем клієнта
+                    Q(user__last_name__icontains=query_cleaned) |
+
+                    # Пошук за ім'ям клієнта
+                    Q(user__first_name__icontains=query_cleaned) |
+
+                    # Пошук за по-батькові клієнта
+                    Q(user__middle_name__icontains=query_cleaned)
+            )
+            queryset = queryset.filter(lookup)
+
+        # 3. Додаткове сортування
+        return queryset.order_by('closed', '-start_date')
+
+    # Додаємо запит у контекст, щоб поле пошуку зберігало значення
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q', '')
+        return context
 
 
 
-# Для штатних працівників показуємо список всіх клієнтів
+
+
 class AllClientsView(LoginRequiredMixin, ListView):
     model = CustomUser
     template_name = 'credit_system/all_clients.html'
@@ -66,10 +101,42 @@ class AllClientsView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         user = self.request.user
 
-        if user.is_superuser or user.is_manager:
-            return CustomUser.objects.filter(role='client').order_by('-date_joined')
-        else:
+        # 1. Перевірка дозволів
+        if not (user.is_superuser or user.is_manager):
             raise Http404("У вас немає дозволу на перегляд списку клієнтів.")
+
+        # 2. Базовий QuerySet: лише клієнти
+        queryset = CustomUser.objects.filter(role='client')
+
+        # 3. Логіка пошуку
+        query = self.request.GET.get('q')
+
+        if query:
+            query_cleaned = query.strip()
+
+            # Формуємо складний OR-запит за всіма ключовими полями
+            lookup = (
+                    Q(last_name__icontains=query_cleaned) |
+                    Q(first_name__icontains=query_cleaned) |
+                    Q(middle_name__icontains=query_cleaned) |
+                    Q(IPN__icontains=query_cleaned) |
+                    Q(phone_number__icontains=query_cleaned) |
+                    Q(address__icontains=query_cleaned) |
+                    Q(address_registration__icontains=query_cleaned) |
+                    Q(address_residential__icontains=query_cleaned) |
+                    Q(passport_number__icontains=query_cleaned)
+            )
+            # Фільтруємо базовий QuerySet за умовами пошуку
+            queryset = queryset.filter(lookup)
+
+        # 4. Сортування
+        return queryset.order_by('-date_joined')
+
+    # Додаємо запит у контекст, щоб поле пошуку зберігало значення
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q', '')
+        return context
 
 
 

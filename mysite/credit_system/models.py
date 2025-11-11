@@ -13,7 +13,6 @@ numeric_validator = RegexValidator(
 
 class CustomUser(AbstractUser):
     """Розширена модель користувача (об’єднана з клієнтом)"""
-    # В адмін-панелі (тільки для адміна) буде випадаючий список з ролями:
     ROLE_CHOICES = (
         ('admin', 'Адмін'),
         ('manager', 'Менеджер'),
@@ -67,9 +66,6 @@ class CustomUser(AbstractUser):
     work_place = models.CharField(max_length=100, verbose_name="Місце роботи", blank=True)
     position = models.CharField(max_length=100, verbose_name="Посада", blank=True)
     notes = models.CharField(max_length=255, verbose_name="Нотатки", blank=True)
-
-
-
 
     def __str__(self):
         full_name = f"{self.last_name} {self.first_name} {self.middle_name}".strip()
@@ -158,7 +154,6 @@ class Credit(models.Model):
             self.last_pay_date = self.start_date
 
         super().save(*args, **kwargs)
-        # Прибираємо refresh_from_db, якщо він не потрібен для сторонніх полів.
 
     class Meta:
         verbose_name = "Кредит"

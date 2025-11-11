@@ -20,11 +20,12 @@
                     <thead class="table-primary text-center">
                         <tr>
                             <th>Дата видачі</th>
-                            <th>Термін, міс.</th>
-                            <th>Ставка, %</th>
-                            <th>Сума кредиту, грн.</th>
-                            <th>Платіж, грн.</th>
-                            <th>Залишок кредиту, грн.</th>
+                            <th>Термін</th>
+                            <th>Ставка</th>
+                            <th>Сума кредиту</th>
+                            <th>Платіж</th>
+                            <th>На дату</th>
+                            <th>Залишок</th>
                             <th>Статус</th>
                         </tr>
                     </thead>
@@ -35,6 +36,7 @@
                             <td>{{ credit.percent }} %</td>
                             <td>{{ credit.summa_credit }} грн</td>
                             <td>{{ credit.plan_pay }} грн</td>
+                            <td>{{ credit.last_pay_date|date:"d.m.Y" }}</td>
                             <td>{{ credit.ostatok }} грн</td>
                             <td>
                             {% if credit.closed %}
