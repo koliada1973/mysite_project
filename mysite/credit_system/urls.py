@@ -13,6 +13,7 @@ urlpatterns = [
     path('credit/<int:credit_id>/add-payment/', AddPaymentView.as_view(), name='add_payment'),
     path('credit/<int:pk>/', views.CreditDetailView.as_view(), name='credit_detail'),
     path('client/<int:pk>/', views.ClientDetailView.as_view(), name='client_detail'),
+    path('clients/<int:client_id>/new-credit/', views.AddCreditView.as_view(), name='add_new_credit'),
     # path('credit/<int:credit_id>/payments/', PaymentsView.as_view(), name='credit_payments'),
     path('login/', auth_views.LoginView.as_view(template_name='credit_system/registration/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='index'), name='logout'),

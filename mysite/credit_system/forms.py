@@ -81,3 +81,136 @@ class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = CustomUser
         fields = '__all__'
+
+
+# class AddCreditForm(forms.ModelForm):
+#     """Форма для створення нового кредиту"""
+#     class Meta:
+#         model = Credit
+#         # Виключаємо поля, які будуть встановлені автоматично (user, ostatok, plan_pay)
+#         # або поля, які мають бути приховані при створенні (number, closed)
+#         fields = [
+#             'number', # Залишаємо його, якщо номер заповнюється вручну, або приховуємо/генеруємо
+#             'summa_credit',
+#             'percent',
+#             'start_date',
+#             'srok_months',
+#             'day_of_pay',
+#             'purpose',
+#             'note',
+#             # 'ostatok', # Буде дорівнювати summa_credit, встановлюємо у View
+#             # 'plan_pay', # Обчислюємо у View або Service
+#         ]
+#         # Для зручності додамо віджети для полів дати
+#         widgets = {
+#             'start_date': forms.DateInput(attrs={'type': 'date'}),
+#         }
+#         labels = {
+#             'number': "Номер кредиту (не обов'язково)",
+#             'summa_credit': "Сума кредиту",
+#             'percent': "Добова відсоткова ставка (%)",
+#             'start_date': "Дата видачі",
+#             'srok_months': "Термін кредиту (місяці)",
+#             'day_of_pay': "Плановий день оплати",
+#             'purpose': "Ціль кредиту",
+#             'note': "Примітка",
+#         }
+
+
+class AddCreditForm(forms.Form):
+    # Поле для номеру кредиту
+    number = forms.CharField(
+        max_length=100,
+        required=False,  # Не обов'язкове поле
+        label="Номер кредиту",
+        widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+
+    start_date = forms.DateField(
+        label="Дата видачі",
+        input_formats=["%Y-%m-%d"],
+        initial=date.today,
+        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}))
+
+    srok_months = forms.IntegerField(
+        label="Термін (міс.)",
+        initial=12,
+        widget=forms.NumberInput(attrs={"class": "form-control"}))
+
+    day_of_pay = forms.IntegerField(
+        label="День оплати",
+        initial=15,
+        widget=forms.NumberInput(attrs={
+            "class": "form-control",
+            "min": "1",
+            "max": "31",
+            "step": "1"
+        }))
+
+    PERCENT_CHOICES = [
+        (0.08, "0,08"),
+        (0.10, "0,10"),
+        (0.12, "0,12"),
+        (0.15, "0,15"),
+    ]
+    percent = forms.ChoiceField(
+        label="% за добу",
+        choices=PERCENT_CHOICES,
+        initial=0.10,
+        widget=forms.Select(attrs={"class": "form-select"}))
+
+    credit_sum = forms.FloatField(
+        label="Сума (грн)",
+        initial=10000,
+        widget=forms.NumberInput(attrs={"class": "form-control", "step": "0.01", 'autofocus': True}))
+
+    purpose = forms.CharField(
+        max_length=255,
+        required=False,
+        label="Ціль кредиту",
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 1})
+    )
+
+    note = forms.CharField(
+        required=False,
+        label="Примітка",
+        # Це поле вже було з Textarea та rows=2
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 1})
+    )
+
+    # Перевірка даних
+    def clean(self):
+        cleaned_data = super().clean()
+
+        start_date = cleaned_data.get('start_date')
+        srok = cleaned_data.get('srok_months')  # Змінено назву
+        day_of_pay = cleaned_data.get('day_of_pay')  # day_of_pay вже Integer, не int(cleaned_data.get('day_of_pay'))
+        percent = cleaned_data.get('percent')
+        credit_sum = cleaned_data.get('credit_sum')  # Змінено назву
+
+        # Перевірка терміну (місяці)
+        if srok is not None and srok <= 0:
+            self.add_error('srok_months', "Термін кредиту має бути більше нулю.")
+
+        # Перевірка дати видачі
+        today_date = date.today()
+        if start_date and start_date < today_date:
+            self.add_error('start_date', "Дата видачі кредиту не може бути раніше поточної дати.")
+
+        # Перевірка дня оплати
+        if day_of_pay is not None and (day_of_pay < 1 or day_of_pay > 31):
+            self.add_error('day_of_pay', "День оплати має бути від 1 до 31")
+
+        # Переведення % ставки з рядку в число
+        if percent is not None:
+            try:
+                percent = float(percent)
+                cleaned_data['percent'] = percent
+            except ValueError:
+                self.add_error('percent', "Некоректне значення відсоткової ставки.")
+
+        # Перевірка суми кредиту
+        if credit_sum is not None and credit_sum < 1000:
+            self.add_error('credit_sum', "Сума кредиту має бути не менше 1000 грн")
+
+        return cleaned_data

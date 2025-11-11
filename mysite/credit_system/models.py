@@ -37,9 +37,7 @@ class CustomUser(AbstractUser):
         null=True,
         blank=True
     )
-    # Телефон, адреса, дата народження
-    # (це все для прикладу, бо реально телефонів може бути кілька,
-    # адреси поділяються на адресу прописки та проживання...)
+
     phone_number = models.CharField(max_length=20, verbose_name="Номер телефону", blank=True)
     address = models.CharField(max_length=255, verbose_name="Адреса", blank=True)
     date_of_birth = models.DateField(verbose_name="Дата народження", null=True, blank=True)
@@ -85,7 +83,7 @@ class CustomUser(AbstractUser):
     def is_client(self):
         return self.role == 'client'
 
-    # Ці змінні працюють в адмін-панелі на сторінці юзерів:
+    # Ці змінні працюють в адмін-панелі на сторінці Користувачі:
     class Meta:
         verbose_name = "Користувач"
         verbose_name_plural = "Користувачі"
@@ -110,7 +108,7 @@ class Credit(models.Model):
     def __str__(self):
         return f"Кредит №{self.number}"
 
-    # Для того, щоб в дату останього платеж підставлялась початкова дата при створенні:
+    # Для того, щоб в дату останього платежу підставлялась початкова дата при створенні:
     def save(self, *args, **kwargs):
         # Якщо поле не заповнене — виставляємо його при кожному збереженні
         if not self.last_pay_date and self.start_date:

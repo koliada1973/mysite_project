@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
@@ -10,8 +8,9 @@ from django.views import View
 from django.views.generic import ListView, DetailView
 
 
-from credit_system.forms import AddPaymentForm, ClientDetailForm
+from credit_system.forms import AddPaymentForm, ClientDetailForm, AddCreditForm
 from credit_system.models import Credit, Payment, CustomUser
+from credit_system.plan_pay import rozrahunok_plan_pay
 from credit_system.services import process_payment
 
 
@@ -174,3 +173,88 @@ class AddPaymentView(LoginRequiredMixin, View):
 
         # Якщо з якихось причин дійшло до цього місця (помилки з даними) - повертаємо форму знову
         return render(request, self.template_name, {'form': form, 'credit': credit})
+
+
+class AddCreditView(LoginRequiredMixin, View):
+    template_name = 'credit_system/add_new_credit.html'  # Змінив назву шаблону
+    form_class = AddCreditForm  # Використовуємо нову форму
+
+    def dispatch(self, request, *args, **kwargs):
+        # Перевірка дозволів: лише менеджери та адміни
+        if not (request.user.is_superuser or request.user.is_manager):
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, client_id):
+        client = get_object_or_404(CustomUser, pk=client_id, role='client')
+        form = self.form_class()
+
+        context = {
+            'form': form,
+            'client': client,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, client_id):
+        client = get_object_or_404(CustomUser, pk=client_id, role='client')
+        form = self.form_class(request.POST)
+
+        # Перевіряємо, чи натиснута кнопка "Створити кредит"
+        if 'create_credit' in request.POST:
+            action = 'create_credit'
+        else:
+            action = 'calculate'  # За замовчуванням - розрахунок
+
+        context = {
+            'form': form,
+            'client': client,
+        }
+
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+
+            # Дані для розрахунку/збереження
+            credit_sum = cleaned_data['credit_sum']
+            percent = cleaned_data['percent'] / 100  # Якщо ваш калькулятор очікує 0.001 (0.1%), а не 0.1 (10%)
+            srok_months = cleaned_data['srok_months']
+            start_date = cleaned_data['start_date']
+            day_of_pay = cleaned_data['day_of_pay']
+
+            # РОЗРАХУНОК (завжди відбувається, якщо форма валідна)
+            # Викликаємо функцію розрахунку
+            plan_pay, grafik, total_pays_sum, pereplata = rozrahunok_plan_pay(
+                credit_sum, percent, srok_months, start_date, day_of_pay
+            )
+
+            # Додаємо результати розрахунку до контексту
+            context.update({
+                'plan_pay': plan_pay,
+                'grafik': grafik,
+                'total_pays_sum': total_pays_sum,
+                'pereplata': pereplata,
+            })
+
+            # ЗБЕРЕЖЕННЯ (якщо натиснуто "Створити кредит")
+            if action == 'create_credit':
+                new_credit = Credit.objects.create(
+                    user=client,
+                    number=cleaned_data.get('number', ''),
+                    summa_credit=credit_sum,
+                    percent=cleaned_data['percent'],  # Зберігаємо як є у формі
+                    start_date=start_date,
+                    srok_months=srok_months,
+                    day_of_pay=day_of_pay,
+                    purpose=cleaned_data.get('purpose', ''),
+                    note=cleaned_data.get('note', ''),
+                    ostatok=credit_sum,  # Залишок = Сума кредиту
+                    plan_pay=plan_pay,  # Беремо з результату розрахунку
+                )
+
+                messages.success(request, f'Кредит №{new_credit.number} для клієнта {client} успішно створено!')
+                return redirect('credit_detail', pk=new_credit.pk)
+
+            # Якщо не "Створити кредит", то повертаємо форму з результатами розрахунку
+            return render(request, self.template_name, context)
+
+        # Якщо форма невалідна — повертаємо її з помилками
+        return render(request, self.template_name, context)
