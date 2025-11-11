@@ -2,7 +2,8 @@ from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
 
-from .views import UserCreditsView, index, AllCreditsView, CreditDetailView, AddPaymentView, AllClientsView
+from .views import UserCreditsView, index, AllCreditsView, CreditDetailView, AddPaymentView, AllClientsView, \
+    AddClientView
 
 urlpatterns = [
     # path('', views.index, name='index'),
@@ -11,6 +12,7 @@ urlpatterns = [
     path('all-credits/', AllCreditsView.as_view(), name='all_credits_list'),
     path('all-clients/', AllClientsView.as_view(), name='all_clients_list'),
     path('credit/<int:credit_id>/add-payment/', AddPaymentView.as_view(), name='add_payment'),
+    path('client/new/', AddClientView.as_view(), name='add_new_client'),
     path('credit/<int:pk>/', views.CreditDetailView.as_view(), name='credit_detail'),
     path('client/<int:pk>/', views.ClientDetailView.as_view(), name='client_detail'),
     path('clients/<int:client_id>/new-credit/', views.AddCreditView.as_view(), name='add_new_credit'),

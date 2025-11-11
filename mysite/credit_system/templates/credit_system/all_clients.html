@@ -9,6 +9,7 @@
         </div>
 
         <div class="card-body">
+
             {% if clients %}
                 <div class="table-responsive" style="max-height: 500px; overflow-y: scroll;">
                     <table class="table table-bordered table-hover">
@@ -17,7 +18,6 @@
                                 <th>ПІБ</th>
                                 <th>ІПН</th>
                                 <th>Телефон</th>
-{#                                <th>Адреса</th>#}
                                 <th>Статус</th>
                             </tr>
                         </thead>
@@ -29,7 +29,6 @@
                                             {{ client.last_name }} {{ client.first_name }} {{ client.middle_name }}
                                         </a>
                                     </td>
-{#                                    <td>{{ client.last_name }} {{ client.first_name }} {{ client.middle_name }}</td>#}
                                     <td>{{ client.IPN }}</td>
                                     <td>{{ client.phone_number }}</td>
                                     <td>
@@ -39,12 +38,6 @@
                                             <span class="badge bg-success">Не активний</span>
                                         {% endif %}
                                     </td>
-
-{#                                    <td>#}
-{#                                        <a href="{% url 'client_detail' client.pk %}" class="btn btn-sm btn-info">#}
-{#                                            Деталі#}
-{#                                        </a>#}
-{#                                    </td>#}
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -55,7 +48,15 @@
                 <p>Клієнтів не знайдено.</p>
             {% endif %}
 
-            <br><a href="{% url 'index' %}" class="btn btn-primary mt-3">Повернитись на головну</a><br>
-        </div>
+
+            <div class="d-flex justify-content-start gap-2 mt-3">
+                <a href="{% url 'index' %}" class="btn btn-primary">
+                    Повернутись на головну
+                </a>
+                <a href="{% url 'add_new_client' %}" class="btn btn-success">
+                    Створити клієнта
+                </a>
+            </div>
+            </div>
     </div>
 {% endblock %}
