@@ -1,11 +1,8 @@
 from datetime import date
-
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.core.exceptions import ValidationError
-
 from credit_system.models import Credit, Payment, CustomUser
-
 
 
 class AddPaymentForm(forms.Form):
@@ -43,8 +40,6 @@ class AddPaymentForm(forms.Form):
 
         return cleaned_data
 
-
-
 class ClientDetailForm(forms.ModelForm):
     class Meta:
         model = CustomUser
@@ -65,7 +60,6 @@ class ClientDetailForm(forms.ModelForm):
             'is_active': forms.CheckboxInput(attrs={'disabled': True}),
         }
 
-
 # Для адмін-панелі
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
@@ -79,14 +73,11 @@ class CustomUserCreationForm(UserCreationForm):
             'address_registration', 'address_residential', 'role', 'is_active'
         )
 
-
 # Для адмін-панелі
 class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = CustomUser
         fields = '__all__'
-
-
 
 class AddCreditForm(forms.Form):
     start_date = forms.DateField(
@@ -177,7 +168,6 @@ class AddCreditForm(forms.Form):
             self.add_error('credit_sum', "Сума кредиту має бути не менше 1000 грн")
 
         return cleaned_data
-
 
 class ClientCreationForm(UserCreationForm):
     password1 = forms.CharField(

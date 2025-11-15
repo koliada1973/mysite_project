@@ -4,17 +4,13 @@ from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
-
 from django.http import HttpResponse, request, Http404
 from django.views import View
 from django.views.generic import ListView, DetailView
-
-
 from credit_system.forms import AddPaymentForm, ClientDetailForm, AddCreditForm, ClientCreationForm
 from credit_system.models import Credit, Payment, CustomUser
 from credit_system.plan_pay import rozrahunok_plan_pay
 from credit_system.services import process_payment
-
 
 
 # Головна сторінка
@@ -24,8 +20,6 @@ def index(request):
         'content_message': 'Оберіть потрібну опцію в меню'
     }
     return render(request, 'credit_system/index.html', context)
-
-
 
 # Для клієнтів показуємо список їх кредитів
 class UserCreditsView(LoginRequiredMixin, ListView):
@@ -39,9 +33,6 @@ class UserCreditsView(LoginRequiredMixin, ListView):
 
         # Якщо з якоїсь причини не автентифікований, повертаємо пустий список
         return Credit.objects.none()
-
-
-
 
 class AllCreditsView(LoginRequiredMixin, ListView):
     model = Credit
@@ -89,10 +80,6 @@ class AllCreditsView(LoginRequiredMixin, ListView):
         context['query'] = self.request.GET.get('q', '')
         return context
 
-
-
-
-
 class AllClientsView(LoginRequiredMixin, ListView):
     model = CustomUser
     template_name = 'credit_system/all_clients.html'
@@ -101,14 +88,14 @@ class AllClientsView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         user = self.request.user
 
-        # 1. Перевірка дозволів
+        # Дозволяємо тільки менеджерам та адміністратору:
         if not (user.is_superuser or user.is_manager):
             raise Http404("У вас немає дозволу на перегляд списку клієнтів.")
 
-        # 2. Базовий QuerySet: лише клієнти
+        # Базовий набір записів: лише клієнти
         queryset = CustomUser.objects.filter(role='client')
 
-        # 3. Логіка пошуку
+        # Пошук на сторінці:
         query = self.request.GET.get('q')
 
         if query:
@@ -126,10 +113,9 @@ class AllClientsView(LoginRequiredMixin, ListView):
                     Q(address_residential__icontains=query_cleaned) |
                     Q(passport_number__icontains=query_cleaned)
             )
-            # Фільтруємо базовий QuerySet за умовами пошуку
+            # Фільтруємо базовий набір записів за умовами пошуку
             queryset = queryset.filter(lookup)
 
-        # 4. Сортування
         return queryset.order_by('-date_joined')
 
     # Додаємо запит у контекст, щоб поле пошуку зберігало значення
@@ -137,8 +123,6 @@ class AllClientsView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['query'] = self.request.GET.get('q', '')
         return context
-
-
 
 # Деталі кредиту
 class CreditDetailView(LoginRequiredMixin, DetailView):
@@ -164,8 +148,6 @@ class CreditDetailView(LoginRequiredMixin, DetailView):
 
         return context
 
-
-
 # Деталі клієнта
 class ClientDetailView(LoginRequiredMixin, DetailView):
     model = CustomUser
@@ -181,8 +163,6 @@ class ClientDetailView(LoginRequiredMixin, DetailView):
                 raise Http404("Ви не маєте доступу до цього профілю клієнта.")
 
         return client_object
-
-
 
 # Додавання платежу
 class AddPaymentView(LoginRequiredMixin, View):
@@ -240,7 +220,6 @@ class AddPaymentView(LoginRequiredMixin, View):
 
         # Якщо з якихось причин дійшло до цього місця (помилки з даними) - повертаємо форму знову
         return render(request, self.template_name, {'form': form, 'credit': credit})
-
 
 class AddCreditView(LoginRequiredMixin, View):
     template_name = 'credit_system/add_new_credit.html'
