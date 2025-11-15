@@ -86,11 +86,31 @@
             </div>
 
 
+{#            {% if user.is_superuser or user.is_manager %}#}
+{#                <a href="{% url 'all_credits_list' %}" class="btn btn-outline-primary mt-3">← Повернутись до списку</a>#}
+{#                <a href="{% url 'add_payment' credit.pk %}" class="btn btn-primary mt-3">Додати платіж</a>#}
+{#            {% elif user.is_client %}#}
+{#                <a href="{% url 'user_credits_list' %}" class="btn btn-outline-primary mt-3">← Повернутись до списку</a>#}
+{#            {% endif %}#}
+
             {% if user.is_superuser or user.is_manager %}
-                <a href="{% url 'all_credits_list' %}" class="btn btn-outline-primary mt-3">← Повернутись до списку</a>
+                {% if return_to_client_detail %}
+                    {# Повернення на сторінку деталей клієнта (ClientDetailView) #}
+                    <a href="{% url 'client_detail' credit.user.pk %}" class="btn btn-outline-primary mt-3">
+                        ← Повернутись до картки клієнта
+                    </a>
+                {% else %}
+                    {# Повернення на загальний список кредитів (AllCreditsView) #}
+                    <a href="{% url 'all_credits_list' %}" class="btn btn-outline-primary mt-3">
+                        ← Повернутись до списку кредитів
+                    </a>
+                {% endif %}
                 <a href="{% url 'add_payment' credit.pk %}" class="btn btn-primary mt-3">Додати платіж</a>
             {% elif user.is_client %}
-                <a href="{% url 'user_credits_list' %}" class="btn btn-outline-primary mt-3">← Повернутись до списку</a>
+                {# Для клієнтів завжди повертаємо до їхнього списку кредитів #}
+                <a href="{% url 'user_credits_list' %}" class="btn btn-outline-primary mt-3">
+                    ← Повернутись до моїх кредитів
+                </a>
             {% endif %}
 
         </div>

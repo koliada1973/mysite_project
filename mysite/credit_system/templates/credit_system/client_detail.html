@@ -1,5 +1,5 @@
 {% extends "credit_system/base.html" %}
-
+{% load static %}
 {% block page_title %}Деталі клієнта{% endblock %}
 
 {% block content %}
@@ -11,98 +11,194 @@
         </div>
 
         <div class="card-body">
-{#            <h5 class="text-primary border-bottom pb-2 mb-3">Деталі клієнта</h5>#}
+            <div class="card shadow-sm mb-3">
 
-            <table class="table table-bordered table-sm detail-table">
-                <tbody>
-                    <tr class="table-header">
-                        <td colspan="2" class="fw-bold bg-custom-gray mt-3">Основна інформація</td>
-                        <td colspan="2" class="fw-bold bg-custom-gray mt-3">Паспортні дані</td>
-                    </tr>
+                {# Заголовок, що виконує функцію кнопки (розкриває або скриває дані) #}
+                <div class="card-header p-0" id="headingOne">
+                    <button class="btn btn-block w-100 text-start fw-bold text-primary p-3"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapseOne"
+                            aria-expanded="true"
+                            aria-controls="collapseOne">
+                        ℹ️ Основні дані клієнта та паспортні дані
+                    </button>
+                </div>
 
-                    <tr>
-                        <th style="width: 20%;">ІПН</th>
-                        <td style="width: 30%;">{{ client.IPN }}</td>
-                        <th style="width: 20%;">Серія</th>
-                        <td style="width: 30%;">{{ client.passport_series }}</td>
-                    </tr>
-                    <tr>
-                        <th>Дата народження</th>
-                        <td>{{ client.date_of_birth|date:"d.m.Y" }}</td>
-                        <th>Номер</th>
-                        <td>{{ client.passport_number }}</td>
-                    </tr>
-                    <tr>
-                        <th>Місце народження</th>
-                        <td>{{ client.place_of_birth }}</td>
-                        <th>Орган, що видав</th>
-                        <td>{{ client.passport_vidan }}</td>
-                    </tr>
-                    <tr>
-                        <th>Стать</th>
-                        <td>
-                            {% if client.sex == 'm' %}Чоловіча{% elif client.sex == 'w' %}Жіноча{% endif %}
-                        </td>
-                        <th>Дата видачі</th>
-                        <td>{{ client.passport_date|date:"d.m.Y" }}</td>
-                    </tr>
-                    <tr>
+                {# Контейнер, який згортається/розгортається #}
+                <div id="collapseOne" class="collapse" aria-labelledby="headingOne">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm detail-table mb-0">
+                                <tbody>
+                                    <tr class="table-header">
+                                        <td colspan="2" class="fw-bold bg-light">Основна інформація</td>
+                                        <td colspan="2" class="fw-bold bg-light">Паспортні дані</td>
+                                    </tr>
 
-                        <th>Адреса проживання</th>
-                        <td>{{ client.address_residential }}</td>
-                        <th>Адреса прописки</th>
-                        <td>{{ client.address_registration }}</td>
-                    </tr>
-
-
-                    <tr class="table-header">
-                        <td colspan="2" class="fw-bold bg-custom-gray mt-3">Робота</td>
-                        <td colspan="2" class="fw-bold bg-custom-gray mt-3">Контакти</td>
-                    </tr>
-                    <tr>
-                        <th>Місце роботи</th>
-                        <td>{{ client.work_place }}</td>
-                        <th>Телефон</th>
-                        <td>{{ client.phone_number }}</td>
-                    </tr>
-                    <tr>
-                        <th>Посада</th>
-                        <td>{{ client.position }}</td>
-                        <th>Email</th>
-                        <td>{{ client.email }}</td>
-                    </tr>
-
-
-                    <tr>
-                        <th>Статус</th>
-                        <td>
-                            {% if client.is_active %}
-                                <span class="badge bg-warning text-dark">Активний</span>
-                            {% else %}
-                                <span class="badge bg-success">Не активний</span>
-                            {% endif %}
-                        </td>
-                        <td colspan="2"></td>
-                    </tr>
-
-
-                </tbody>
-            </table>
-
-            {% if client.notes %}
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card border-secondary">
-                        <div class="card-header bg-light text-primary fw-bold">
-                            Нотатки
-                        </div>
-                        <div class="card-body">
-                            <p class="mb-0" style="white-space: pre-line;">{{ client.notes }}</p>
+                                    <tr>
+                                        <th style="width: 20%;">ІПН</th>
+                                        <td style="width: 30%;">{{ client.IPN }}</td>
+                                        <th style="width: 20%;">Серія</th>
+                                        <td style="width: 30%;">{{ client.passport_series }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Дата народження</th>
+                                        <td>{{ client.date_of_birth|date:"d.m.Y" }}</td>
+                                        <th>Номер</th>
+                                        <td>{{ client.passport_number }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Місце народження</th>
+                                        <td>{{ client.place_of_birth }}</td>
+                                        <th>Орган, що видав</th>
+                                        <td>{{ client.passport_vidan }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Стать</th>
+                                        <td>
+                                            {% if client.sex == 'm' %}Чоловіча{% elif client.sex == 'w' %}Жіноча{% endif %}
+                                        </td>
+                                        <th>Дата видачі</th>
+                                        <td>{{ client.passport_date|date:"d.m.Y" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Адреса проживання</th>
+                                        <td>{{ client.address_residential }}</td>
+                                        <th>Адреса прописки</th>
+                                        <td>{{ client.address_registration }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {# БЛОК 2: РОБОТА, КОНТАКТИ ТА НОТАТКИ #}
+            <div class="card shadow-sm mb-3">
+
+                {# Заголовок, що виконує функцію кнопки (розкриває або скриває дані) #}
+                <div class="card-header p-0" id="headingTwo">
+                    <button class="btn btn-block w-100 text-start fw-bold text-primary p-3 collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapseTwo"
+                            aria-expanded="false"
+                            aria-controls="collapseTwo">
+                        💼 Робота, контакти та додаткова інформація
+                    </button>
+                </div>
+
+                {# Контейнер, який згортається/розгортається #}
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm detail-table mb-0">
+                                <tbody>
+                                    <tr class="table-header">
+                                        <td colspan="2" class="fw-bold bg-light">Робота</td>
+                                        <td colspan="2" class="fw-bold bg-light">Контакти</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="width: 20%;">Місце роботи</th>
+                                        <td style="width: 30%;">{{ client.work_place }}</td>
+                                        <th style="width: 20%;">Телефон</th>
+                                        <td style="width: 30%;">{{ client.phone_number }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Посада</th>
+                                        <td>{{ client.position }}</td>
+                                        <th>Email</th>
+                                        <td>{{ client.email }}</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>Статус</th>
+                                        <td>
+                                            {% if client.is_active %}
+                                                <span class="badge bg-warning text-dark">Активний</span>
+                                            {% else %}
+                                                <span class="badge bg-success">Не активний</span>
+                                            {% endif %}
+                                        </td>
+                                        <td colspan="2"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {# Блок Нотаток переміщено всередину другого згортаючогося блоку #}
+                        {% if client.notes %}
+                        <div class="p-3">
+                            <div class="card border-secondary">
+                                <div class="card-header bg-light text-primary fw-bold">
+                                    Нотатки
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-0" style="white-space: pre-line;">{{ client.notes }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+
+
+            {% if credits %}
+                <div class="card mt-4 shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Кредити клієнта</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-bordered table-hover table-sm mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Номер</th>
+                                    <th>Сума</th>
+                                    <th>Дата видачі</th>
+                                    <th>Залишок</th>
+                                    <th>Статус</th>
+{#                                    <th></th>#}
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for credit in credits %}
+                                <tr>
+{#                                    <td>{{ credit.number }}</td>#}
+                                    <td>
+{#                                        <a href="{% url 'credit_detail' credit.pk %}" class="text-decoration-none fw-bold text-primary">#}
+{#                                            {{ credit.number }}#}
+{#                                        </a>#}
+                                        <a href="{% url 'credit_detail' credit.pk %}?next=client_detail" class="text-decoration-none fw-bold text-primary">{{ credit.number }}</a>
+                                    </td>
+                                    <td>{{ credit.summa_credit }} грн</td>
+                                    <td>{{ credit.start_date|date:"d.m.Y" }}</td>
+                                    <td>{{ credit.ostatok }} грн</td>
+                                    <td>
+                                        {% if credit.closed %}
+                                            <span class="badge bg-success">Закрито</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">Активний</span>
+                                        {% endif %}
+                                    </td>
+{#                                    <td>#}
+{#                                        <a href="{% url 'credit_detail' credit.id %}" class="btn btn-primary btn-sm">#}
+{#                                            Переглянути#}
+{#                                        </a>#}
+{#                                    </td>#}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-info mt-4">У цього клієнта ще немає кредитів.</div>
             {% endif %}
+
 
         </div>
 

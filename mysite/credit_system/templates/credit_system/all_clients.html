@@ -11,9 +11,13 @@
         <div class="card-body">
 
             <!-- Пошук -->
+{#            <form method="GET" action="{% url 'all_clients_list' %}" class="mb-3">#}
+{#                <input type="text" name="q" >#}
+{#                <button type="submit">Шукати</button>#}
+{#            </form>#}
             <form method="GET" action="{% url 'all_clients_list' %}" class="mb-3">
-                <input type="text" name="q" >
-                <button type="submit">Шукати</button>
+                <input type="text" name="q" placeholder="Введіть Прізвище, Ім'я або іншу інформацію для пошуку" class="form-control d-inline-block w-50">
+                <button type="submit" class="btn btn-primary">Шукати</button>
             </form>
 
             {% if clients %}

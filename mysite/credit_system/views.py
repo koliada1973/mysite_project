@@ -50,28 +50,20 @@ class AllCreditsView(LoginRequiredMixin, ListView):
             # Для клієнта: повертаємо лише його кредити
             queryset = base_queryset.filter(user=user)
 
-
+        # Пошук по номеру кредиту, ІПН, прізвищу, імені, по-батькові
         query = self.request.GET.get('q')
         if query:
             query_cleaned = query.strip()
 
-            # (номер кредиту АБО прізвище АБО ім'я АБО по-батькові)
             lookup = (
-                # Пошук за номером кредиту
                     Q(number__icontains=query_cleaned) |
-
-                    # Пошук за прізвищем клієнта
+                    Q(user__IPN__icontains=query_cleaned) |
                     Q(user__last_name__icontains=query_cleaned) |
-
-                    # Пошук за ім'ям клієнта
                     Q(user__first_name__icontains=query_cleaned) |
-
-                    # Пошук за по-батькові клієнта
                     Q(user__middle_name__icontains=query_cleaned)
             )
             queryset = queryset.filter(lookup)
 
-        # 3. Додаткове сортування
         return queryset.order_by('closed', '-start_date')
 
     # Додаємо запит у контекст, щоб поле пошуку зберігало значення
@@ -133,17 +125,24 @@ class CreditDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # 1. Отримуємо поточний об'єкт кредиту
+        # Отримуємо поточний об'єкт кредиту
         current_credit = context['credit']
 
-        # 2. Отримуємо всі платежі, пов'язані з цим кредитом
+        # Отримуємо всі платежі, пов'язані з цим кредитом
         queryset = Payment.objects.filter(credit=current_credit).order_by('date_pay')
 
-        # 3. Застосовуємо логіку безпеки, щоб користувач не бачив чужі платежі (якщо потрібно)
+        # Забороняємо користувачу бачити чужі платежі
         if not (self.request.user.is_superuser or self.request.user.is_manager):
             queryset = queryset.filter(credit__user=self.request.user)
 
-        # 4. Додаємо список платежів до контексту
+        return_to = self.request.GET.get('next')
+
+        if return_to == 'client_detail' and (self.request.user.is_superuser or self.request.user.is_manager):
+            context['return_to_client_detail'] = True
+        else:
+            context['return_to_client_detail'] = False
+
+        # Додаємо список платежів до контексту
         context['payments'] = queryset
 
         return context
@@ -163,6 +162,14 @@ class ClientDetailView(LoginRequiredMixin, DetailView):
                 raise Http404("Ви не маєте доступу до цього профілю клієнта.")
 
         return client_object
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        client = context['client']
+
+        context['credits'] = client.credits.all().order_by('closed', '-start_date')
+
+        return context
 
 # Додавання платежу
 class AddPaymentView(LoginRequiredMixin, View):

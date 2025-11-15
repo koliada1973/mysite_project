@@ -11,9 +11,13 @@
         <div class="card-body">
 
             <!--Пошук -->
+{#            <form method="GET" action="{% url 'all_credits_list' %}" class="mb-3">#}
+{#                <input type="text" name="q" >#}
+{#                <button type="submit">Шукати</button>#}
+{#            </form>#}
             <form method="GET" action="{% url 'all_credits_list' %}" class="mb-3">
-                <input type="text" name="q" >
-                <button type="submit">Шукати</button>
+                <input type="text" name="q" placeholder="Введіть Прізвище, Ім'я, номер кредиту ..." class="form-control d-inline-block w-50">
+                <button type="submit" class="btn btn-primary">Шукати</button>
             </form>
 
             {% if credits %}
@@ -21,8 +25,8 @@
                     <table class="table table-bordered table-hover">
                         <thead class="table-primary text-center">
                             <tr>
-                                <th>Користувач</th>
                                 <th>Кредит</th>
+                                <th>Користувач</th>
                                 <th>Сума</th>
                                 <th>Ставка, %</th>
                                 <th>Дата видачі</th>
@@ -34,14 +38,13 @@
                             {% for credit in credits %}
                                 <tr>
                                     <td>
-                                        <a href="{% url 'client_detail' credit.user.pk %}?source=credits" class="text-decoration-none fw-bold text-primary">
-                                            {{ credit.user.last_name }} {{ credit.user.first_name }}
-                                        </a>
-                                    </td>
-
-                                    <td>
                                         <a href="{% url 'credit_detail' credit.pk %}" class="text-decoration-none fw-bold text-primary">
                                             {{ credit.number }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'client_detail' credit.user.pk %}?source=credits" class="text-decoration-none fw-bold text-primary">
+                                            {{ credit.user.last_name }} {{ credit.user.first_name }}
                                         </a>
                                     </td>
                                     <td>{{ credit.summa_credit }} грн</td>
