@@ -161,17 +161,12 @@
                                     <th>Дата видачі</th>
                                     <th>Залишок</th>
                                     <th>Статус</th>
-{#                                    <th></th>#}
                                 </tr>
                             </thead>
                             <tbody>
                             {% for credit in credits %}
                                 <tr>
-{#                                    <td>{{ credit.number }}</td>#}
                                     <td>
-{#                                        <a href="{% url 'credit_detail' credit.pk %}" class="text-decoration-none fw-bold text-primary">#}
-{#                                            {{ credit.number }}#}
-{#                                        </a>#}
                                         <a href="{% url 'credit_detail' credit.pk %}?next=client_detail" class="text-decoration-none fw-bold text-primary">{{ credit.number }}</a>
                                     </td>
                                     <td>{{ credit.summa_credit }} грн</td>
@@ -184,11 +179,6 @@
                                             <span class="badge bg-warning text-dark">Активний</span>
                                         {% endif %}
                                     </td>
-{#                                    <td>#}
-{#                                        <a href="{% url 'credit_detail' credit.id %}" class="btn btn-primary btn-sm">#}
-{#                                            Переглянути#}
-{#                                        </a>#}
-{#                                    </td>#}
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -223,7 +213,10 @@
             </div>
 
             {% if user.is_manager or user.is_superuser %}
-                <div class="add-button">
+                <div class="d-flex">
+                    <a href="{% url 'edit_client' client.pk %}" class="btn btn-warning me-2">
+                        Редагувати дані клієнта
+                    </a>
                     <a href="{% url 'add_new_credit' client.pk %}" class="btn btn-success">
                         Додати новий кредит
                     </a>

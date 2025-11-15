@@ -3,14 +3,10 @@
 {% block page_title %}Головна сторінка{% endblock %}
 
 {% block content %}
-    {#<p>{{ content_message }}</p>#}
     <div class="text-center">
-{#        <p class="lead">{{ content_message }}</p>#}
-
 
         {% if user.is_authenticated %}
             <p><strong>Доброго дня,  {{ user.first_name }}  {{ user.middle_name }}. <br>Оберіть потрібну опцію</strong></p>
-            {#<a href="{% url 'user_credits_list' %}" class="btn btn-primary mt-3">Переглянути мої кредити</a>#}
 
             <!-- Якщо користувач - це штатний працівник, то він бачить кнопку Кредитний портфель -->
             {% if user.is_superuser or user.is_manager %}
@@ -25,8 +21,75 @@
             {% endif %}
 
         {% else %}
-            <a href="{% url 'login' %}" class="btn btn-outline-primary mt-3">Увійти</a>
+            <a href="{% url 'login' %}" class="btn btn-outline-primary mt-3">Будь ласка, виконайте вхід для отримання доступу до всіх можливостей</a>
         {% endif %}
 
+    </div>
+
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-lg-12 text-center">
+
+            {% if user.is_authenticated and user.is_manager %}
+
+                {# БЛОК ДЛЯ МЕНЕДЖЕРІВ / АДМІНІВ (АВТОРИЗОВАНИХ)  #}
+                <div class="alert alert-info shadow-sm p-4">
+                    <h4 class="alert-heading">Панель управління кредитною системою</h4>
+                    <p class="lead">
+                        Ви увійшли як **Менеджер**.<br> У вас є повний доступ до всіх можливостей керування кредитним портфелем, включая адмін-панель.
+                    </p>
+                    <hr>
+                    <p class="mb-0 small">
+                        Перейдіть до **Списку всіх клієнтів** або **Списку всіх кредитів** для початку роботи.
+                    </p>
+                </div>
+
+            {% else %}
+
+                {# БЛОК ДЛЯ КЛІЄНТІВ ТА НЕЗАРЕЄСТРОВАНИХ (ГОСТЕЙ) #}
+                <br><br><br>
+{#                <div class="card shadow-lg border-primary">#}
+                    <div class="card-body py-3 px-3">
+                        <h5 class="card-title text-primary fw-bold mb-3"> Ми пропонуємо прозорі та вигідні умови кредитування:</h5>
+
+                        <ul class="list-unstyled text-start mx-auto mb-3 fs-6" style="max-width: 650px;">
+                            <li> Кредитний продукт <strong>"Сміливий"</strong>:</li>
+                            <li class="d-inline me-4">Сума: до 30 000 грн.</li>
+                            <li class="d-inline me-4">Термін: 3–12 міс.</li>
+                            <li class="d-inline me-4">Ставка: 0.15%/день.</li>
+                        </ul>
+
+                        <hr class="mx-auto my-3" style="max-width: 650px; opacity: 0.5;">
+
+                        <ul class="list-unstyled text-start mx-auto mb-3 fs-6" style="max-width: 650px;">
+                            <li> Кредитний продукт <strong>"Стандарт"</strong>:</li>
+                            <li class="d-inline me-4">Сума: до 50 000 грн.</li>
+                            <li class="d-inline me-4">Термін: 3–18 міс.</li>
+                            <li class="d-inline me-4">Ставка: 0.12%/день.</li>
+                        </ul>
+
+                        <hr class="mx-auto my-3" style="max-width: 650px; opacity: 0.5;">
+
+                        <ul class="list-unstyled text-start mx-auto mb-3 fs-6" style="max-width: 650px;">
+                            <li> Кредитний продукт <strong>"Свіжий"</strong>:</li>
+                            <li class="d-inline me-4">Сума: до 100 000 грн.</li>
+                            <li class="d-inline me-4">Термін: 3–24 міс.</li>
+                            <li class="d-inline me-4">Ставка: 0.10%/день.</li>
+                        </ul>
+
+                        <hr class="mx-auto my-3" style="max-width: 650px; opacity: 0.5;">
+
+                        <ul class="list-unstyled text-start mx-auto mb-0 fs-6" style="max-width: 650px;">
+                            <li> Кредитний продукт <strong>"VIP"</strong>:</li>
+                            <li class="d-inline me-4">Сума: до 200 000 грн.</li>
+                            <li class="d-inline me-4">Термін: 3–36 міс.</li>
+                            <li class="d-inline me-4">Ставка: 0.08%/день.</li>
+                        </ul>
+                    </div>
+{#                </div>#}
+
+            {% endif %}
+
+        </div>
     </div>
 {% endblock %}

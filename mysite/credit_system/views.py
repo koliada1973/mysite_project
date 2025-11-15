@@ -5,8 +5,9 @@ from django.db import IntegrityError
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, request, Http404
+from django.urls import reverse
 from django.views import View
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, UpdateView
 from credit_system.forms import AddPaymentForm, ClientDetailForm, AddCreditForm, ClientCreationForm
 from credit_system.models import Credit, Payment, CustomUser
 from credit_system.plan_pay import rozrahunok_plan_pay
@@ -171,6 +172,31 @@ class ClientDetailView(LoginRequiredMixin, DetailView):
 
         return context
 
+
+class ClientUpdateView(LoginRequiredMixin, UpdateView):
+    model = CustomUser
+    # Використовуємо ту саму форму, що і для створення, але без полів пароля, якщо вони не потрібні
+    form_class = ClientCreationForm
+    template_name = 'credit_system/add_new_client.html'  # Використовуємо існуючий шаблон
+    context_object_name = 'client'
+
+    # Обмеження доступу: лише менеджери та адміни
+    def dispatch(self, request, *args, **kwargs):
+        if not (request.user.is_superuser or request.user.is_manager):
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
+
+    # Вказуємо, куди перенаправляти після успішного збереження
+    def get_success_url(self):
+        messages.success(self.request, f"Дані клієнта {self.object.last_name} успішно оновлено.")
+        return reverse('client_detail', kwargs={'pk': self.object.pk})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = f'Редагування клієнта: {self.object.get_full_name()}'
+        return context
+
+
 # Додавання платежу
 class AddPaymentView(LoginRequiredMixin, View):
     template_name = 'credit_system/add_payment.html'
@@ -312,7 +338,6 @@ class AddCreditView(LoginRequiredMixin, View):
 
         # Якщо форма невалідна — повертаємо її з помилками
         return render(request, self.template_name, context)
-
 
 class AddClientView(LoginRequiredMixin, View):
     template_name = 'credit_system/add_new_client.html'

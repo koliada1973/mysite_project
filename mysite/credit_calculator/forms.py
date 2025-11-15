@@ -28,13 +28,13 @@ class CalculatorForm(forms.Form):
 
 
     PERCENT_CHOICES = [
-        (0.08, "0,08"),
-        (0.10, "0,10"),
-        (0.12, "0,12"),
-        (0.15, "0,15"),
+        (0.08, "VIP"),
+        (0.10, "Свіжий"),
+        (0.12, "Стандарт"),
+        (0.15, "Сміливий"),
     ]
     percent = forms.ChoiceField(
-        label="% за добу",
+        label="Кредитний продукт",
         choices=PERCENT_CHOICES,
         initial=0.10,
         # help_text="Виберіть добову % ставку",

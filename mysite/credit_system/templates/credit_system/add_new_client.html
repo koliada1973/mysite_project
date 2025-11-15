@@ -25,27 +25,31 @@
                             </div>
                         {% endif %}
 
-                        <h5 class="text-primary border-bottom pb-2 mb-3">Основна інформація та акаунт</h5>
+                        {% if not client %}
+                            <h5 class="text-primary border-bottom pb-2 mb-3">Основна інформація та акаунт</h5>
 
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-4">
-                                <label for="{{ form.username.id_for_label }}" class="form-label small fw-bold">{{ form.username.label }}</label>
-                                {{ form.username }}
-                                {% for error in form.username.errors %}<div class="alert alert-danger p-1 mt-1 small">{{ error }}</div>{% endfor %}
-                            </div>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4">
+                                    <label for="{{ form.username.id_for_label }}" class="form-label small fw-bold">{{ form.username.label }}</label>
+                                    {{ form.username }}
+                                    {% for error in form.username.errors %}<div class="alert alert-danger p-1 mt-1 small">{{ error }}</div>{% endfor %}
+                                </div>
 
-                            <div class="col-md-4">
-                                <label for="{{ form.password1.id_for_label }}" class="form-label small fw-bold">Пароль</label>
-                                {{ form.password1 }}
-                                {% for error in form.password1.errors %}<div class="alert alert-danger p-1 mt-1 small">{{ error }}</div>{% endfor %}
-                            </div>
+                                <div class="col-md-4">
+                                    <label for="{{ form.password1.id_for_label }}" class="form-label small fw-bold">Пароль</label>
+                                    {{ form.password1 }}
+                                    {% for error in form.password1.errors %}<div class="alert alert-danger p-1 mt-1 small">{{ error }}</div>{% endfor %}
+                                </div>
 
-                            <div class="col-md-4">
-                                <label for="{{ form.password2.id_for_label }}" class="form-label small fw-bold">Підтвердження Пароля</label>
-                                {{ form.password2 }}
-                                {% for error in form.password2.errors %}<div class="alert alert-danger p-1 mt-1 small">{{ error }}</div>{% endfor %}
+                                <div class="col-md-4">
+                                    <label for="{{ form.password2.id_for_label }}" class="form-label small fw-bold">Підтвердження Пароля</label>
+                                    {{ form.password2 }}
+                                    {% for error in form.password2.errors %}<div class="alert alert-danger p-1 mt-1 small">{{ error }}</div>{% endfor %}
+                                </div>
                             </div>
-                        </div>
+                        {% endif %}
+
+
                         {% if form.non_field_errors %}
                             <div class="alert alert-danger p-2 mb-3">
                                 <strong>Помилка форми:</strong>
@@ -166,11 +170,24 @@
 
                         <div class="mt-4 text-end">
                             <button type="submit" class="btn btn-success btn-lg">
-                                Створити клієнта
+                                {% if client %}
+                                    Зберегти зміни
+                                {% else %}
+                                    Створити клієнта
+                                {% endif %}
                             </button>
-                            <a href="{% url 'all_clients_list' %}" class="btn btn-secondary btn-lg ms-2">
-                                Скасувати
-                            </a>
+
+                            {% if client %}
+                                {# Редагування клієнта: Повертаємось до сторінки деталей поточного клієнта #}
+                                <a href="{% url 'client_detail' client.pk %}" class="btn btn-secondary btn-lg ms-2">
+                                    Скасувати
+                                </a>
+                            {% else %}
+                                {# Створення клієнта: Повертаємось до загального списку клієнтів #}
+                                <a href="{% url 'all_clients_list' %}" class="btn btn-secondary btn-lg ms-2">
+                                    Скасувати
+                                </a>
+                            {% endif %}
                         </div>
                     </form>
 

@@ -3,7 +3,7 @@ from . import views
 from django.contrib.auth import views as auth_views
 
 from .views import UserCreditsView, index, AllCreditsView, CreditDetailView, AddPaymentView, AllClientsView, \
-    AddClientView
+    AddClientView, ClientUpdateView
 
 urlpatterns = [
     # path('', views.index, name='index'),
@@ -13,6 +13,7 @@ urlpatterns = [
     path('all-clients/', AllClientsView.as_view(), name='all_clients_list'),
     path('credit/<int:pk>/', views.CreditDetailView.as_view(), name='credit_detail'),
     path('client/<int:pk>/', views.ClientDetailView.as_view(), name='client_detail'),
+    path('client/<int:pk>/edit/', ClientUpdateView.as_view(), name='edit_client'),
     path('client/new/', AddClientView.as_view(), name='add_new_client'),
     path('clients/<int:client_id>/new-credit/', views.AddCreditView.as_view(), name='add_new_credit'),
     path('credit/<int:credit_id>/add-payment/', AddPaymentView.as_view(), name='add_payment'),
