@@ -29,8 +29,8 @@ class CalculatorForm(forms.Form):
 
     PERCENT_CHOICES = [
         (0.08, "VIP"),
-        (0.10, "Свіжий"),
-        (0.12, "Стандарт"),
+        (0.10, "Стандарт"),
+        (0.12, "Свіжий"),
         (0.15, "Сміливий"),
     ]
     percent = forms.ChoiceField(

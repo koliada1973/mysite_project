@@ -8,14 +8,12 @@
         {% if user.is_authenticated %}
             <p><strong>Доброго дня,  {{ user.first_name }}  {{ user.middle_name }}. <br>Оберіть потрібну опцію</strong></p>
 
-            <!-- Якщо користувач - це штатний працівник, то він бачить кнопку Кредитний портфель -->
             {% if user.is_superuser or user.is_manager %}
                 <a href="{% url 'admin:index' %}" class="btn btn-warning mt-3">Перейти до адмін-панелі</a><br>
                 <a href="{% url 'all_credits_list' %}" class="btn btn-primary mt-3">Переглянути всі кредити</a><br>
                 <a href="{% url 'all_clients_list' %}" class="btn btn-primary mt-3">Переглянути всіх клієнтів</a><br>
 
-                <!-- Якщо користувач - це клієнт, то він бачить кнопку Переглянути мої кредити -->
-            {% elif user.is_client %}
+                {% elif user.is_client %}
                 <a href="{% url 'user_credits_list' %}" class="btn btn-primary mt-3">Переглянути мої кредити</a>
 
             {% endif %}
@@ -47,8 +45,8 @@
             {% else %}
 
                 {# БЛОК ДЛЯ КЛІЄНТІВ ТА НЕЗАРЕЄСТРОВАНИХ (ГОСТЕЙ) #}
-                <br><br><br>
-                <div class="card shadow-lg border-primary">
+                <br><br>
+                <div class="card shadow-lg border-primary mt-5">
                     <div class="card-body py-3 px-3">
                         <h5 class="card-title text-primary fw-bold mb-3"> Ми пропонуємо прозорі та вигідні умови кредитування:</h5>
 
@@ -56,25 +54,25 @@
                             <li> Кредитний продукт <strong>"Сміливий"</strong>:</li>
                             <li class="d-inline me-4">Сума: до 30 000 грн.</li>
                             <li class="d-inline me-4">Термін: 3–12 міс.</li>
-                            <li class="d-inline me-4">Ставка: 0.15%/день.</li>
-                        </ul>
-
-                        <hr class="mx-auto my-3" style="max-width: 650px; opacity: 0.5;">
-
-                        <ul class="list-unstyled text-start mx-auto mb-3 fs-6" style="max-width: 650px;">
-                            <li> Кредитний продукт <strong>"Стандарт"</strong>:</li>
-                            <li class="d-inline me-4">Сума: до 50 000 грн.</li>
-                            <li class="d-inline me-4">Термін: 3–18 міс.</li>
-                            <li class="d-inline me-4">Ставка: 0.12%/день.</li>
+                            <li class="d-inline me-4">Ставка: 0.15% / день.</li>
                         </ul>
 
                         <hr class="mx-auto my-3" style="max-width: 650px; opacity: 0.5;">
 
                         <ul class="list-unstyled text-start mx-auto mb-3 fs-6" style="max-width: 650px;">
                             <li> Кредитний продукт <strong>"Свіжий"</strong>:</li>
+                            <li class="d-inline me-4">Сума: до 50 000 грн.</li>
+                            <li class="d-inline me-4">Термін: 3–18 міс.</li>
+                            <li class="d-inline me-4">Ставка: 0.12% / день.</li>
+                        </ul>
+
+                        <hr class="mx-auto my-3" style="max-width: 650px; opacity: 0.5;">
+
+                        <ul class="list-unstyled text-start mx-auto mb-3 fs-6" style="max-width: 650px;">
+                            <li> Кредитний продукт <strong>"Стандарт"</strong>:</li>
                             <li class="d-inline me-4">Сума: до 100 000 грн.</li>
                             <li class="d-inline me-4">Термін: 3–24 міс.</li>
-                            <li class="d-inline me-4">Ставка: 0.10%/день.</li>
+                            <li class="d-inline me-4">Ставка: 0.10% / день.</li>
                         </ul>
 
                         <hr class="mx-auto my-3" style="max-width: 650px; opacity: 0.5;">
@@ -83,7 +81,7 @@
                             <li> Кредитний продукт <strong>"VIP"</strong>:</li>
                             <li class="d-inline me-4">Сума: до 200 000 грн.</li>
                             <li class="d-inline me-4">Термін: 3–36 міс.</li>
-                            <li class="d-inline me-4">Ставка: 0.08%/день.</li>
+                            <li class="d-inline me-4">Ставка: 0.08% / день.</li>
                         </ul>
                     </div>
                 </div>
