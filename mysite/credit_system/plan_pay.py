@@ -59,7 +59,6 @@ def rozrahunok_payment(credit_sum, daily_rate, months, start_date, pay_day, pay)
 
     return ostatok + dolg_by_percents
 
-
 def rozrahunok_plan_pay(credit_sum, daily_percent, months, start_date, pay_day, tol=1, max_iter=200):
     """
     Підбирає платіж так, щоб фінальний баланс був <= 0.
@@ -158,18 +157,3 @@ def rozrahunok_plan_pay(credit_sum, daily_percent, months, start_date, pay_day, 
 
     pereplata = from_cents(total_pays_sum) - credit_sum
     return from_cents(pay), grafik, from_cents(total_pays_sum), round(pereplata, 2)
-
-
-
-# suma_credit = 1000
-# daily_percent = 0.0010
-# months = 18
-# start_date = "2025-11-9"
-# pay_day = 15
-#
-# plan_pay, grafik = rozrahunok_plan_pay(suma_credit, daily_percent, months, start_date, pay_day)
-#
-# print(f"Підібраний щомісячний платіж (plan_pay) ≈ {plan_pay:.2f} грн\n")
-# print("Графік (grafik):")
-# for row in grafik:
-#     print(row)

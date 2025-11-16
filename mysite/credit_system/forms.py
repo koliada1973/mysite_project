@@ -5,41 +5,6 @@ from django.core.exceptions import ValidationError
 from credit_system.models import Credit, Payment, CustomUser
 
 
-class AddPaymentForm(forms.Form):
-    date_pay = forms.DateField(
-        label="Дата платежу",
-        input_formats=["%Y-%m-%d"],
-        initial=date.today,
-        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}))
-
-    pay = forms.FloatField(
-        label="Сума платежу (грн)",
-        widget=forms.NumberInput(attrs={"class": "form-control", "step": "0.01", 'autofocus': True}))
-
-    # Приховане поле, в яке передається last_pay_date з view
-    last_pay_date = forms.DateField(widget=forms.HiddenInput())
-
-    # Перевірка введених даних
-    def clean(self):
-        cleaned_data = super().clean()
-
-        date_pay = cleaned_data.get('date_pay')
-        pay = cleaned_data.get('pay')
-        last_pay_date = cleaned_data.get('last_pay_date') # Отримуємо дату попереднього платежу
-
-        # Перевірка, що сума платежу більше нуля:
-        if pay is not None and pay <= 0:
-            # raise ValidationError("Сума платежу має бути додатною.", code='invalid_pay_amount')
-            self.add_error('pay', "Сума платежу має бути додатною.")
-
-        # Перевірка чи дата платежу пізніше дати попереднього платежу
-        if date_pay and last_pay_date:
-            if date_pay < last_pay_date:
-                # raise ValidationError("Дата платежу не може бути раніше або такою ж, як дата попереднього платежу.",code='invalid_payment_date')
-                self.add_error('date_pay', "Дата платежу не може бути раніше дати попереднього платежу.")
-
-        return cleaned_data
-
 class ClientDetailForm(forms.ModelForm):
     class Meta:
         model = CustomUser
@@ -60,24 +25,75 @@ class ClientDetailForm(forms.ModelForm):
             'is_active': forms.CheckboxInput(attrs={'disabled': True}),
         }
 
-# Для адмін-панелі
-class CustomUserCreationForm(UserCreationForm):
-    class Meta(UserCreationForm.Meta):
-        model = CustomUser
-        fields = (
-            'username', 'password1', 'password2',
-            'first_name', 'last_name', 'middle_name', 'sex',
-            'date_of_birth', 'place_of_birth', 'work_place', 'position',
-            'email', 'phone_number', 'notes', 'IPN',
-            'passport_series', 'passport_number', 'passport_vidan', 'passport_date',
-            'address_registration', 'address_residential', 'role', 'is_active'
-        )
+class ClientCreationForm(UserCreationForm):
+    password1 = forms.CharField(
+        label="Пароль",
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
 
-# Для адмін-панелі
-class CustomUserChangeForm(UserChangeForm):
+    password2 = forms.CharField(
+        label="Підтвердження Пароля",
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
+
     class Meta:
         model = CustomUser
-        fields = '__all__'
+
+        fields = (
+            'username',
+            'password1',  # Явно додаємо
+            'password2',  # Явно додаємо
+            'last_name',
+            'first_name',
+            'middle_name',
+            'IPN',
+            'date_of_birth',
+            'place_of_birth',
+            'sex',
+            'address_registration',
+            'address_residential',
+            'passport_series',
+            'passport_number',
+            'passport_vidan',
+            'passport_date',
+            'work_place',
+            'position',
+            'phone_number',
+            'email',
+            'notes',
+        )
+
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'middle_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'IPN': forms.TextInput(attrs={'class': 'form-control'}),
+            'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'place_of_birth': forms.TextInput(attrs={'class': 'form-control'}),
+            'sex': forms.Select(attrs={'class': 'form-select'}),
+            'address_registration': forms.TextInput(attrs={'class': 'form-control'}),
+            'address_residential': forms.TextInput(attrs={'class': 'form-control'}),
+            'passport_series': forms.TextInput(attrs={'class': 'form-control'}),
+            'passport_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'passport_vidan': forms.TextInput(attrs={'class': 'form-control'}),
+            'passport_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'work_place': forms.TextInput(attrs={'class': 'form-control'}),
+            'position': forms.TextInput(attrs={'class': 'form-control'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+
+        user.role = 'client'
+        user.is_active = True
+
+        if commit:
+            user.save()
+        return user
 
 class AddCreditForm(forms.Form):
     start_date = forms.DateField(
@@ -169,72 +185,56 @@ class AddCreditForm(forms.Form):
 
         return cleaned_data
 
-class ClientCreationForm(UserCreationForm):
-    password1 = forms.CharField(
-        label="Пароль",
-        widget=forms.PasswordInput(attrs={'class': 'form-control'})
-    )
+class AddPaymentForm(forms.Form):
+    date_pay = forms.DateField(
+        label="Дата платежу",
+        input_formats=["%Y-%m-%d"],
+        initial=date.today,
+        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}))
 
-    password2 = forms.CharField(
-        label="Підтвердження Пароля",
-        widget=forms.PasswordInput(attrs={'class': 'form-control'})
-    )
+    pay = forms.FloatField(
+        label="Сума платежу (грн)",
+        widget=forms.NumberInput(attrs={"class": "form-control", "step": "0.01", 'autofocus': True}))
 
-    class Meta:
+    # Приховане поле, в яке передається last_pay_date з view
+    last_pay_date = forms.DateField(widget=forms.HiddenInput())
+
+    # Перевірка введених даних
+    def clean(self):
+        cleaned_data = super().clean()
+
+        date_pay = cleaned_data.get('date_pay')
+        pay = cleaned_data.get('pay')
+        last_pay_date = cleaned_data.get('last_pay_date') # Отримуємо дату попереднього платежу
+
+        # Перевірка, що сума платежу більше нуля:
+        if pay is not None and pay <= 0:
+            # raise ValidationError("Сума платежу має бути додатною.", code='invalid_pay_amount')
+            self.add_error('pay', "Сума платежу має бути додатною.")
+
+        # Перевірка чи дата платежу пізніше дати попереднього платежу
+        if date_pay and last_pay_date:
+            if date_pay < last_pay_date:
+                # raise ValidationError("Дата платежу не може бути раніше або такою ж, як дата попереднього платежу.",code='invalid_payment_date')
+                self.add_error('date_pay', "Дата платежу не може бути раніше дати попереднього платежу.")
+
+        return cleaned_data
+
+
+# Для адмін-панелі
+class CustomUserCreationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
         model = CustomUser
-
         fields = (
-            'username',
-            'password1',  # Явно додаємо
-            'password2',  # Явно додаємо
-            'last_name',
-            'first_name',
-            'middle_name',
-            'IPN',
-            'date_of_birth',
-            'place_of_birth',
-            'sex',
-            'address_registration',
-            'address_residential',
-            'passport_series',
-            'passport_number',
-            'passport_vidan',
-            'passport_date',
-            'work_place',
-            'position',
-            'phone_number',
-            'email',
-            'notes',
+            'username', 'password1', 'password2',
+            'first_name', 'last_name', 'middle_name', 'sex',
+            'date_of_birth', 'place_of_birth', 'work_place', 'position',
+            'email', 'phone_number', 'notes', 'IPN',
+            'passport_series', 'passport_number', 'passport_vidan', 'passport_date',
+            'address_registration', 'address_residential', 'role', 'is_active'
         )
 
-        widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'middle_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'IPN': forms.TextInput(attrs={'class': 'form-control'}),
-            'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'place_of_birth': forms.TextInput(attrs={'class': 'form-control'}),
-            'sex': forms.Select(attrs={'class': 'form-select'}),
-            'address_registration': forms.TextInput(attrs={'class': 'form-control'}),
-            'address_residential': forms.TextInput(attrs={'class': 'form-control'}),
-            'passport_series': forms.TextInput(attrs={'class': 'form-control'}),
-            'passport_number': forms.TextInput(attrs={'class': 'form-control'}),
-            'passport_vidan': forms.TextInput(attrs={'class': 'form-control'}),
-            'passport_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'work_place': forms.TextInput(attrs={'class': 'form-control'}),
-            'position': forms.TextInput(attrs={'class': 'form-control'}),
-            'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-        }
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-
-        user.role = 'client'
-        user.is_active = True
-
-        if commit:
-            user.save()
-        return user
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = CustomUser
+        fields = '__all__'

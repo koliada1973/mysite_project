@@ -5,8 +5,7 @@ from datetime import date
 
 from django.db.models import Max
 
-# Валідатор для ІПН — лише 10 цифр (ChatGPT)
-numeric_validator = RegexValidator(
+numeric_validator = RegexValidator(     # Валідатор для ІПН — лише 10 цифр (ChatGPT)
     r'^\d{10}$',
     'Введіть коректний ІПН — рівно 10 цифр.'
 )

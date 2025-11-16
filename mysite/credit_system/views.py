@@ -14,247 +14,54 @@ from credit_system.plan_pay import rozrahunok_plan_pay
 from credit_system.services import process_payment
 
 
-# Головна сторінка
 def index(request):
+    """Головна сторінка сайту"""
     context = {
         'page_title': 'Ласкаво просимо!',
         'content_message': 'Оберіть потрібну опцію в меню'
     }
     return render(request, 'credit_system/index.html', context)
 
-# Для клієнтів показуємо список їх кредитів
-class UserCreditsView(LoginRequiredMixin, ListView):
-    model = Credit
-    template_name = 'credit_system/my_credits.html'
-    context_object_name = 'credits'
-
-    def get_queryset(self):
-        if self.request.user.is_authenticated:
-            return Credit.objects.filter(user=self.request.user).order_by('closed', '-start_date')
-
-        # Якщо з якоїсь причини не автентифікований, повертаємо пустий список
-        return Credit.objects.none()
-
-class AllCreditsView(LoginRequiredMixin, ListView):
-    model = Credit
-    template_name = 'credit_system/all_credits.html'
-    context_object_name = 'credits'
-
-    def get_queryset(self):
-        user = self.request.user
-
-        base_queryset = Credit.objects.select_related('user')
-
-        if user.is_superuser or user.is_manager:
-            queryset = base_queryset.all()
-        else:
-            # Для клієнта: повертаємо лише його кредити
-            queryset = base_queryset.filter(user=user)
-
-        # Пошук по номеру кредиту, ІПН, прізвищу, імені, по-батькові
-        query = self.request.GET.get('q')
-        if query:
-            query_cleaned = query.strip()
-
-            lookup = (
-                    Q(number__icontains=query_cleaned) |
-                    Q(user__IPN__icontains=query_cleaned) |
-                    Q(user__last_name__icontains=query_cleaned) |
-                    Q(user__first_name__icontains=query_cleaned) |
-                    Q(user__middle_name__icontains=query_cleaned)
-            )
-            queryset = queryset.filter(lookup)
-
-        return queryset.order_by('closed', '-start_date')
-
-    # Додаємо запит у контекст, щоб поле пошуку зберігало значення
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['query'] = self.request.GET.get('q', '')
-        return context
-
-class AllClientsView(LoginRequiredMixin, ListView):
-    model = CustomUser
-    template_name = 'credit_system/all_clients.html'
-    context_object_name = 'clients'
-
-    def get_queryset(self):
-        user = self.request.user
-
-        # Дозволяємо тільки менеджерам та адміністратору:
-        if not (user.is_superuser or user.is_manager):
-            raise Http404("У вас немає дозволу на перегляд списку клієнтів.")
-
-        # Базовий набір записів: лише клієнти
-        queryset = CustomUser.objects.filter(role='client')
-
-        # Пошук на сторінці:
-        query = self.request.GET.get('q')
-
-        if query:
-            query_cleaned = query.strip()
-
-            # Формуємо складний OR-запит за всіма ключовими полями
-            lookup = (
-                    Q(last_name__icontains=query_cleaned) |
-                    Q(first_name__icontains=query_cleaned) |
-                    Q(middle_name__icontains=query_cleaned) |
-                    Q(IPN__icontains=query_cleaned) |
-                    Q(phone_number__icontains=query_cleaned) |
-                    Q(address__icontains=query_cleaned) |
-                    Q(address_registration__icontains=query_cleaned) |
-                    Q(address_residential__icontains=query_cleaned) |
-                    Q(passport_number__icontains=query_cleaned)
-            )
-            # Фільтруємо базовий набір записів за умовами пошуку
-            queryset = queryset.filter(lookup)
-
-        return queryset.order_by('-date_joined')
-
-    # Додаємо запит у контекст, щоб поле пошуку зберігало значення
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['query'] = self.request.GET.get('q', '')
-        return context
-
-# Деталі кредиту
-class CreditDetailView(LoginRequiredMixin, DetailView):
-    model = Credit
-    template_name = 'credit_system/credit_detail.html'
-    context_object_name = 'credit'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # Отримуємо поточний об'єкт кредиту
-        current_credit = context['credit']
-
-        # Отримуємо всі платежі, пов'язані з цим кредитом
-        queryset = Payment.objects.filter(credit=current_credit).order_by('date_pay')
-
-        # Забороняємо користувачу бачити чужі платежі
-        if not (self.request.user.is_superuser or self.request.user.is_manager):
-            queryset = queryset.filter(credit__user=self.request.user)
-
-        return_to = self.request.GET.get('next')
-
-        if return_to == 'client_detail' and (self.request.user.is_superuser or self.request.user.is_manager):
-            context['return_to_client_detail'] = True
-        else:
-            context['return_to_client_detail'] = False
-
-        # Додаємо список платежів до контексту
-        context['payments'] = queryset
-
-        return context
-
-# Деталі клієнта
-class ClientDetailView(LoginRequiredMixin, DetailView):
-    model = CustomUser
-    template_name = 'credit_system/client_detail.html'
-    context_object_name = 'client'
-
-    def get_object(self, queryset=None):
-        pk = self.kwargs.get(self.pk_url_kwarg)
-        client_object = get_object_or_404(self.model, pk=pk)
-
-        if not (self.request.user.is_superuser or self.request.user.is_manager):
-            if client_object != self.request.user:
-                raise Http404("Ви не маєте доступу до цього профілю клієнта.")
-
-        return client_object
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        client = context['client']
-
-        context['credits'] = client.credits.all().order_by('closed', '-start_date')
-
-        return context
-
-
-class ClientUpdateView(LoginRequiredMixin, UpdateView):
-    model = CustomUser
-    # Використовуємо ту саму форму, що і для створення, але без полів пароля, якщо вони не потрібні
+class AddClientView(LoginRequiredMixin, View):
+    """Для менеджерів форма для створення нового клієнта"""
+    template_name = 'credit_system/add_new_client.html'
     form_class = ClientCreationForm
-    template_name = 'credit_system/add_new_client.html'  # Використовуємо існуючий шаблон
-    context_object_name = 'client'
 
-    # Обмеження доступу: лише менеджери та адміни
+    # Перевірка дозволів: тільки менеджери та адміни можуть додавати клієнтів
     def dispatch(self, request, *args, **kwargs):
         if not (request.user.is_superuser or request.user.is_manager):
-            raise PermissionDenied
+            raise PermissionDenied  # Викликаємо 403 Forbidden
         return super().dispatch(request, *args, **kwargs)
 
-    # Вказуємо, куди перенаправляти після успішного збереження
-    def get_success_url(self):
-        messages.success(self.request, f"Дані клієнта {self.object.last_name} успішно оновлено.")
-        return reverse('client_detail', kwargs={'pk': self.object.pk})
+    def get(self, request):
+        form = self.form_class()
+        context = {
+            'form': form,
+            'page_title': 'Створення нового клієнта',
+        }
+        return render(request, self.template_name, context)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['page_title'] = f'Редагування клієнта: {self.object.get_full_name()}'
-        return context
-
-
-# Додавання платежу
-class AddPaymentView(LoginRequiredMixin, View):
-    template_name = 'credit_system/add_payment.html'
-
-    def get(self, request, credit_id):
-        credit = get_object_or_404(Credit, pk=credit_id)
-        credit.refresh_from_db()
-
-        if not (request.user.is_superuser or request.user.is_manager):
-            raise PermissionDenied  # <--- Зверніть увагу: ми кидаємо виняток, не повертаємо None
-
-        # Отримання даних для форми
-        last_pay_date = credit.last_pay_date
-        initial_data = {'last_pay_date': last_pay_date}
-
-        # Створення форми з початковими даними
-        form = AddPaymentForm(initial=initial_data)
-
-        return render(request, self.template_name, {'form': form, 'credit': credit})
-
-    def post(self, request, credit_id):
-        credit = get_object_or_404(Credit, pk=credit_id)
-
-        last_pay_date = credit.last_pay_date
-
-        if not (request.user.is_superuser or request.user.is_manager):
-            raise PermissionDenied
-
-        initial_data = {'last_pay_date': last_pay_date}
-        form = AddPaymentForm(request.POST, initial=initial_data)
+    def post(self, request):
+        form = self.form_class(request.POST)
 
         if form.is_valid():
-            pay = form.cleaned_data['pay']
-            date_pay = form.cleaned_data['date_pay']
-
-            delta_days = (date_pay - last_pay_date).days
-
             try:
-                result = process_payment(credit, pay, date_pay, delta_days)
-            except ValueError as e:
-                messages.error(request, str(e))
-                # Якщо помилка, повертаємо користувача на ту ж сторінку з формою
-                return render(request, self.template_name, {'form': form, 'credit': credit})
+                client_instance = form.save()
+                messages.success(request, f"Клієнт {client_instance.last_name} ... успішно створений!")
+                return redirect('client_detail', pk=client_instance.pk)
 
-            # У випадку, коли кредит закривається
-            # і сума платежу більше залишку кредиту - зменшуємо останній платіж:
-            if result['ost_payment'] > 0:
-                pay -= result['ost_payment']
+            except Exception as e:
+                messages.error(request, f"Невідома помилка при збереженні клієнта. Перевірте лог сервера. Деталі: {e}")
+                pass
 
-            # Зберігаємо сам платіж
-            Payment.objects.create(credit=credit, pay=pay, date_pay=date_pay, dolg_percent=result["dolg_percent"], ostatok=result["ostatok"], pog_credit=result["pog_credit"], pog_summa_percent=result["pog_summa_percent"], summa_percent=result["summa_percent"], ost_payment=result["ost_payment"])
-
-            return redirect('credit_detail', pk=credit.id)
-
-        # Якщо з якихось причин дійшло до цього місця (помилки з даними) - повертаємо форму знову
-        return render(request, self.template_name, {'form': form, 'credit': credit})
+        context = {
+            'form': form,
+            'page_title': 'Створення нового клієнта',
+        }
+        return render(request, self.template_name, context)
 
 class AddCreditView(LoginRequiredMixin, View):
+    """Для менеджерів форма створення нового кредиту для клієнта"""
     template_name = 'credit_system/add_new_credit.html'
     form_class = AddCreditForm
 
@@ -339,39 +146,235 @@ class AddCreditView(LoginRequiredMixin, View):
         # Якщо форма невалідна — повертаємо її з помилками
         return render(request, self.template_name, context)
 
-class AddClientView(LoginRequiredMixin, View):
-    template_name = 'credit_system/add_new_client.html'
-    form_class = ClientCreationForm
+class AddPaymentView(LoginRequiredMixin, View):
+    """Для менеджерів форма для додавання платежу до кредиту"""
+    template_name = 'credit_system/add_payment.html'
 
-    # Перевірка дозволів: тільки менеджери та адміни можуть додавати клієнтів
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, credit_id):
+        credit = get_object_or_404(Credit, pk=credit_id)
+        credit.refresh_from_db()
+
         if not (request.user.is_superuser or request.user.is_manager):
-            raise PermissionDenied  # Викликаємо 403 Forbidden
-        return super().dispatch(request, *args, **kwargs)
+            raise PermissionDenied  # <--- Зверніть увагу: ми кидаємо виняток, не повертаємо None
 
-    def get(self, request):
-        form = self.form_class()
-        context = {
-            'form': form,
-            'page_title': 'Створення нового клієнта',
-        }
-        return render(request, self.template_name, context)
+        # Отримання даних для форми
+        last_pay_date = credit.last_pay_date
+        initial_data = {'last_pay_date': last_pay_date}
 
-    def post(self, request):
-        form = self.form_class(request.POST)
+        # Створення форми з початковими даними
+        form = AddPaymentForm(initial=initial_data)
+
+        return render(request, self.template_name, {'form': form, 'credit': credit})
+
+    def post(self, request, credit_id):
+        credit = get_object_or_404(Credit, pk=credit_id)
+
+        last_pay_date = credit.last_pay_date
+
+        if not (request.user.is_superuser or request.user.is_manager):
+            raise PermissionDenied
+
+        initial_data = {'last_pay_date': last_pay_date}
+        form = AddPaymentForm(request.POST, initial=initial_data)
 
         if form.is_valid():
+            pay = form.cleaned_data['pay']
+            date_pay = form.cleaned_data['date_pay']
+
+            delta_days = (date_pay - last_pay_date).days
+
             try:
-                client_instance = form.save()
-                messages.success(request, f"Клієнт {client_instance.last_name} ... успішно створений!")
-                return redirect('client_detail', pk=client_instance.pk)
+                result = process_payment(credit, pay, date_pay, delta_days)
+            except ValueError as e:
+                messages.error(request, str(e))
+                # Якщо помилка, повертаємо користувача на ту ж сторінку з формою
+                return render(request, self.template_name, {'form': form, 'credit': credit})
 
-            except Exception as e:
-                messages.error(request, f"Невідома помилка при збереженні клієнта. Перевірте лог сервера. Деталі: {e}")
-                pass
+            # У випадку, коли кредит закривається
+            # і сума платежу більше залишку кредиту - зменшуємо останній платіж:
+            if result['ost_payment'] > 0:
+                pay -= result['ost_payment']
 
-        context = {
-            'form': form,
-            'page_title': 'Створення нового клієнта',
-        }
-        return render(request, self.template_name, context)
+            # Зберігаємо сам платіж
+            Payment.objects.create(credit=credit, pay=pay, date_pay=date_pay, dolg_percent=result["dolg_percent"], ostatok=result["ostatok"], pog_credit=result["pog_credit"], pog_summa_percent=result["pog_summa_percent"], summa_percent=result["summa_percent"], ost_payment=result["ost_payment"])
+
+            return redirect('credit_detail', pk=credit.id)
+
+        # Якщо з якихось причин дійшло до цього місця (помилки з даними) - повертаємо форму знову
+        return render(request, self.template_name, {'form': form, 'credit': credit})
+
+class ClientDetailView(LoginRequiredMixin, DetailView):
+    """Для менеджерів показуємо деталі клієнта"""
+    model = CustomUser
+    template_name = 'credit_system/client_detail.html'
+    context_object_name = 'client'
+
+    def get_object(self, queryset=None):
+        pk = self.kwargs.get(self.pk_url_kwarg)
+        client_object = get_object_or_404(self.model, pk=pk)
+
+        if not (self.request.user.is_superuser or self.request.user.is_manager):
+            if client_object != self.request.user:
+                raise Http404("Ви не маєте доступу до цього профілю клієнта.")
+
+        return client_object
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        client = context['client']
+
+        context['credits'] = client.credits.all().order_by('closed', '-start_date')
+
+        return context
+
+class CreditDetailView(LoginRequiredMixin, DetailView):
+    """Показуємо деталі кредиту"""
+    model = Credit
+    template_name = 'credit_system/credit_detail.html'
+    context_object_name = 'credit'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Отримуємо поточний об'єкт кредиту
+        current_credit = context['credit']
+
+        # Отримуємо всі платежі, пов'язані з цим кредитом
+        queryset = Payment.objects.filter(credit=current_credit).order_by('date_pay')
+
+        # Забороняємо користувачу бачити чужі платежі
+        if not (self.request.user.is_superuser or self.request.user.is_manager):
+            queryset = queryset.filter(credit__user=self.request.user)
+
+        return_to = self.request.GET.get('next')
+
+        if return_to == 'client_detail' and (self.request.user.is_superuser or self.request.user.is_manager):
+            context['return_to_client_detail'] = True
+        else:
+            context['return_to_client_detail'] = False
+
+        # Додаємо список платежів до контексту
+        context['payments'] = queryset
+
+        return context
+
+class ClientUpdateView(LoginRequiredMixin, UpdateView):
+    """Для менеджерів форма редагування клієнта, створена на основі форми створення клієнта"""
+    model = CustomUser
+    # Використовуємо ту саму форму, що і для створення, але без полів пароля, якщо вони не потрібні
+    form_class = ClientCreationForm
+    template_name = 'credit_system/add_new_client.html'  # Використовуємо існуючий шаблон
+    context_object_name = 'client'
+
+    # Обмеження доступу: лише менеджери та адміни
+    def dispatch(self, request, *args, **kwargs):
+        if not (request.user.is_superuser or request.user.is_manager):
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
+
+    # Вказуємо, куди перенаправляти після успішного збереження
+    def get_success_url(self):
+        messages.success(self.request, f"Дані клієнта {self.object.last_name} успішно оновлено.")
+        return reverse('client_detail', kwargs={'pk': self.object.pk})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = f'Редагування клієнта: {self.object.get_full_name()}'
+        return context
+
+class UserCreditsView(LoginRequiredMixin, ListView):
+    """Для клієнтів показуємо список їх кредитів"""
+    model = Credit
+    template_name = 'credit_system/my_credits.html'
+    context_object_name = 'credits'
+
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return Credit.objects.filter(user=self.request.user).order_by('closed', '-start_date')
+
+        # Якщо з якоїсь причини не автентифікований, повертаємо пустий список
+        return Credit.objects.none()
+
+class AllCreditsView(LoginRequiredMixin, ListView):
+    """Для менеджерів показуємо список всіх кредитів"""
+    model = Credit
+    template_name = 'credit_system/all_credits.html'
+    context_object_name = 'credits'
+
+    def get_queryset(self):
+        user = self.request.user
+
+        base_queryset = Credit.objects.select_related('user')
+
+        if user.is_superuser or user.is_manager:
+            queryset = base_queryset.all()
+        else:
+            # Для клієнта: повертаємо лише його кредити
+            queryset = base_queryset.filter(user=user)
+
+        # Пошук по номеру кредиту, ІПН, прізвищу, імені, по-батькові
+        query = self.request.GET.get('q')
+        if query:
+            query_cleaned = query.strip()
+
+            lookup = (
+                    Q(number__icontains=query_cleaned) |
+                    Q(user__IPN__icontains=query_cleaned) |
+                    Q(user__last_name__icontains=query_cleaned) |
+                    Q(user__first_name__icontains=query_cleaned) |
+                    Q(user__middle_name__icontains=query_cleaned)
+            )
+            queryset = queryset.filter(lookup)
+
+        return queryset.order_by('closed', '-start_date')
+
+    # Додаємо запит у контекст, щоб поле пошуку зберігало значення
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q', '')
+        return context
+
+class AllClientsView(LoginRequiredMixin, ListView):
+    """Для менеджерів показуємо список всіх клієнтів"""
+    model = CustomUser
+    template_name = 'credit_system/all_clients.html'
+    context_object_name = 'clients'
+
+    def get_queryset(self):
+        user = self.request.user
+
+        # Дозволяємо тільки менеджерам та адміністратору:
+        if not (user.is_superuser or user.is_manager):
+            raise Http404("У вас немає дозволу на перегляд списку клієнтів.")
+
+        # Базовий набір записів: лише клієнти
+        queryset = CustomUser.objects.filter(role='client')
+
+        # Пошук на сторінці:
+        query = self.request.GET.get('q')
+
+        if query:
+            query_cleaned = query.strip()
+
+            # Формуємо запит за всіма ключовими полями
+            lookup = (
+                    Q(last_name__icontains=query_cleaned) |
+                    Q(first_name__icontains=query_cleaned) |
+                    Q(middle_name__icontains=query_cleaned) |
+                    Q(IPN__icontains=query_cleaned) |
+                    Q(phone_number__icontains=query_cleaned) |
+                    Q(address__icontains=query_cleaned) |
+                    Q(address_registration__icontains=query_cleaned) |
+                    Q(address_residential__icontains=query_cleaned) |
+                    Q(passport_number__icontains=query_cleaned)
+            )
+            # Фільтруємо набір записів за умовами пошуку
+            queryset = queryset.filter(lookup)
+
+        return queryset.order_by('-date_joined')
+
+    # Додаємо запит у контекст, щоб поле пошуку зберігало значення
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q', '')
+        return context
