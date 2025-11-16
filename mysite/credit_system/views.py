@@ -16,11 +16,7 @@ from credit_system.services import process_payment
 
 def index(request):
     """Головна сторінка сайту"""
-    context = {
-        'page_title': 'Ласкаво просимо!',
-        'content_message': 'Оберіть потрібну опцію в меню'
-    }
-    return render(request, 'credit_system/index.html', context)
+    return render(request, 'credit_system/index.html')
 
 class AddClientView(LoginRequiredMixin, View):
     """Для менеджерів форма для створення нового клієнта"""
@@ -184,6 +180,7 @@ class AddPaymentView(LoginRequiredMixin, View):
             delta_days = (date_pay - last_pay_date).days
 
             try:
+                # Розрахунок платежу - функція process_payment (модуль services.py)
                 result = process_payment(credit, pay, date_pay, delta_days)
             except ValueError as e:
                 messages.error(request, str(e))
@@ -224,37 +221,7 @@ class ClientDetailView(LoginRequiredMixin, DetailView):
         client = context['client']
 
         context['credits'] = client.credits.all().order_by('closed', '-start_date')
-
-        return context
-
-class CreditDetailView(LoginRequiredMixin, DetailView):
-    """Показуємо деталі кредиту"""
-    model = Credit
-    template_name = 'credit_system/credit_detail.html'
-    context_object_name = 'credit'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # Отримуємо поточний об'єкт кредиту
-        current_credit = context['credit']
-
-        # Отримуємо всі платежі, пов'язані з цим кредитом
-        queryset = Payment.objects.filter(credit=current_credit).order_by('date_pay')
-
-        # Забороняємо користувачу бачити чужі платежі
-        if not (self.request.user.is_superuser or self.request.user.is_manager):
-            queryset = queryset.filter(credit__user=self.request.user)
-
-        return_to = self.request.GET.get('next')
-
-        if return_to == 'client_detail' and (self.request.user.is_superuser or self.request.user.is_manager):
-            context['return_to_client_detail'] = True
-        else:
-            context['return_to_client_detail'] = False
-
-        # Додаємо список платежів до контексту
-        context['payments'] = queryset
+        context['source'] = self.request.GET.get('source', 'clients')
 
         return context
 
@@ -294,6 +261,37 @@ class UserCreditsView(LoginRequiredMixin, ListView):
 
         # Якщо з якоїсь причини не автентифікований, повертаємо пустий список
         return Credit.objects.none()
+
+class CreditDetailView(LoginRequiredMixin, DetailView):
+    """Показуємо деталі кредиту"""
+    model = Credit
+    template_name = 'credit_system/credit_detail.html'
+    context_object_name = 'credit'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Отримуємо поточний об'єкт кредиту
+        current_credit = context['credit']
+
+        # Отримуємо всі платежі, пов'язані з цим кредитом
+        queryset = Payment.objects.filter(credit=current_credit).order_by('date_pay')
+
+        # Забороняємо користувачу бачити чужі платежі
+        if not (self.request.user.is_superuser or self.request.user.is_manager):
+            queryset = queryset.filter(credit__user=self.request.user)
+
+        return_to = self.request.GET.get('next')
+
+        if return_to == 'client_detail' and (self.request.user.is_superuser or self.request.user.is_manager):
+            context['return_to_client_detail'] = True
+        else:
+            context['return_to_client_detail'] = False
+
+        # Додаємо список платежів до контексту
+        context['payments'] = queryset
+
+        return context
 
 class AllCreditsView(LoginRequiredMixin, ListView):
     """Для менеджерів показуємо список всіх кредитів"""

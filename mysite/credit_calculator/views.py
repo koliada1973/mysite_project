@@ -4,10 +4,6 @@ from django.views import View
 from credit_calculator.forms import CalculatorForm
 from credit_calculator.plan_pay import rozrahunok_plan_pay
 
-
-# def calculator_view(request):
-#     return render(request, 'credit_calculator/calculator.html')
-
 class CalculatorView(View):
     template_name = 'credit_calculator/calculator.html'
 

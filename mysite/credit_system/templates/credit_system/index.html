@@ -28,13 +28,28 @@
     <div class="row justify-content-center mt-5">
         <div class="col-lg-12 text-center">
 
-            {% if user.is_authenticated and user.is_manager %}
+            {% if user.is_authenticated and user.is_admin %}
 
-                {# БЛОК ДЛЯ МЕНЕДЖЕРІВ / АДМІНІВ (АВТОРИЗОВАНИХ)  #}
+                {# БЛОК ДЛЯ АДМІНІВ (АВТОРИЗОВАНИХ)  #}
                 <div class="alert alert-info shadow-sm p-4">
                     <h4 class="alert-heading">Панель управління кредитною системою</h4>
                     <p class="lead">
-                        Ви увійшли як **Менеджер**.<br> У вас є повний доступ до всіх можливостей керування кредитним портфелем, включая адмін-панель.
+                        Ви увійшли як **Адміністратор**.<br> У вас є повний доступ до всіх можливостей керування кредитним портфелем, включая адмін-панель.
+                    </p>
+                    <hr>
+                    <p class="mb-0 small">
+                        Перейдіть до **Списку всіх клієнтів** або **Списку всіх кредитів** для початку роботи.
+                    </p>
+                </div>
+
+
+            {% elif user.is_authenticated and user.is_manager %}
+
+                {# БЛОК ДЛЯ МЕНЕДЖЕРІВ (АВТОРИЗОВАНИХ)  #}
+                <div class="alert alert-info shadow-sm p-4">
+                    <h4 class="alert-heading">Панель управління кредитною системою</h4>
+                    <p class="lead">
+                        Ви увійшли як **Менеджер**.<br> У вас є повний доступ до всіх можливостей керування кредитним портфелем.
                     </p>
                     <hr>
                     <p class="mb-0 small">

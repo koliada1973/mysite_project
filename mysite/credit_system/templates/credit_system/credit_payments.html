@@ -57,10 +57,10 @@
 
 
             {% if user.is_superuser or user.is_manager %}
-                <a href="{% url 'credit_detail' credit.pk %}" class="btn btn-outline-primary mt-3">← Повернутись до кредиту</a>
+                <a href="{% url 'credit_detail' credit.pk %}" class="btn btn-outline-primary mt-3">Повернутись до кредиту</a>
                 <a href="{% url 'add_payment' credit.pk %}" class="btn btn-primary mt-3">Додати платіж</a>
             {% elif user.is_client %}
-                <a href="{% url 'credit_detail' credit.pk %}" class="btn btn-outline-primary mt-3">← Повернутись до кредиту</a>
+                <a href="{% url 'credit_detail' credit.pk %}" class="btn btn-outline-primary mt-3">Повернутись до кредиту</a>
             {% endif %}
         </div>
     </div>

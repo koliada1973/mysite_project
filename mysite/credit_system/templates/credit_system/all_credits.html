@@ -34,7 +34,7 @@
                             {% for credit in credits %}
                                 <tr>
                                     <td>
-                                        <a href="{% url 'credit_detail' credit.pk %}" class="text-decoration-none fw-bold text-primary">
+                                        <a href="{% url 'credit_detail' credit.pk %}?source=all_credits_list" class="text-decoration-none fw-bold text-primary">
                                             {{ credit.number }}
                                         </a>
                                     </td>

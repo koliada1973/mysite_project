@@ -72,6 +72,10 @@ class CustomUser(AbstractUser):
 
     # Метод перевірки чи є користувач менеджером або адміном:
     @property
+    def is_admin(self):
+        return self.role == 'admin' or self.is_superuser
+
+    @property
     def is_manager(self):
         return self.role == 'manager' or self.is_superuser
 

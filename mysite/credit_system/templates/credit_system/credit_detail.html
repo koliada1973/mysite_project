@@ -87,22 +87,30 @@
 
 
             {% if user.is_superuser or user.is_manager %}
-                {% if return_to_client_detail %}
-                    {# Повернення на сторінку деталей клієнта (ClientDetailView) #}
-                    <a href="{% url 'client_detail' credit.user.pk %}" class="btn btn-outline-primary mt-3">
-                        ← Повернутись до картки клієнта
-                    </a>
-                {% else %}
-                    {# Повернення на загальний список кредитів (AllCreditsView) #}
-                    <a href="{% url 'all_credits_list' %}" class="btn btn-outline-primary mt-3">
-                        ← Повернутись до списку кредитів
-                    </a>
-                {% endif %}
-                <a href="{% url 'add_payment' credit.pk %}" class="btn btn-primary mt-3">Додати платіж</a>
+                {% with source=request.GET.source %}
+                    {% if source == 'client_detail' %}
+
+                        <a href="{% url 'client_detail' credit.user.pk %}?source={{ request.GET.list_source }}" class="btn btn-outline-primary mt-3">
+                            Повернутись до картки клієнта
+                        </a>
+
+                    {% elif source == 'all_credits_list' %}
+                        <a href="{% url 'all_credits_list' %}" class="btn btn-outline-primary mt-3">
+                            Повернутись до списку кредитів
+                        </a>
+
+                    {% else %}
+                        <a href="{% url 'all_credits_list' %}" class="btn btn-outline-primary mt-3">
+                            Повернутись до списку кредитів
+                        </a>
+                    {% endif %}
+
+                    <a href="{% url 'add_payment' credit.pk %}" class="btn btn-primary mt-3">Додати платіж</a>
+                {% endwith %}
             {% elif user.is_client %}
                 {# Для клієнтів завжди повертаємо до їхнього списку кредитів #}
                 <a href="{% url 'user_credits_list' %}" class="btn btn-outline-primary mt-3">
-                    ← Повернутись до моїх кредитів
+                    Повернутись до моїх кредитів
                 </a>
             {% endif %}
 
