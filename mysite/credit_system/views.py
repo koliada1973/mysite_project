@@ -8,7 +8,8 @@ from django.http import HttpResponse, request, Http404
 from django.urls import reverse
 from django.views import View
 from django.views.generic import ListView, DetailView, UpdateView
-from credit_system.forms import AddPaymentForm, ClientDetailForm, AddCreditForm, ClientCreationForm
+from credit_system.forms import AddPaymentForm, ClientDetailForm, AddCreditForm, ClientCreationForm, \
+    CustomUserChangeForm
 from credit_system.models import Credit, Payment, CustomUser
 from credit_system.plan_pay import rozrahunok_plan_pay
 from credit_system.services import process_payment
@@ -43,7 +44,7 @@ class AddClientView(LoginRequiredMixin, View):
         if form.is_valid():
             try:
                 client_instance = form.save()
-                messages.success(request, f"Клієнт {client_instance.last_name} ... успішно створений!")
+                # messages.success(request, f"Клієнт {client_instance.last_name} ... успішно створений!")
                 return redirect('client_detail', pk=client_instance.pk)
 
             except Exception as e:
@@ -151,7 +152,7 @@ class AddPaymentView(LoginRequiredMixin, View):
         credit.refresh_from_db()
 
         if not (request.user.is_superuser or request.user.is_manager):
-            raise PermissionDenied  # <--- Зверніть увагу: ми кидаємо виняток, не повертаємо None
+            raise PermissionDenied
 
         # Отримання даних для форми
         last_pay_date = credit.last_pay_date
@@ -212,7 +213,8 @@ class ClientDetailView(LoginRequiredMixin, DetailView):
 
         if not (self.request.user.is_superuser or self.request.user.is_manager):
             if client_object != self.request.user:
-                raise Http404("Ви не маєте доступу до цього профілю клієнта.")
+                # raise Http404("Ви не маєте доступу до цього профілю клієнта.")
+                raise PermissionDenied
 
         return client_object
 
@@ -229,7 +231,8 @@ class ClientUpdateView(LoginRequiredMixin, UpdateView):
     """Для менеджерів форма редагування клієнта, створена на основі форми створення клієнта"""
     model = CustomUser
     # Використовуємо ту саму форму, що і для створення, але без полів пароля, якщо вони не потрібні
-    form_class = ClientCreationForm
+    # form_class = ClientCreationForm
+    form_class = CustomUserChangeForm
     template_name = 'credit_system/add_new_client.html'  # Використовуємо існуючий шаблон
     context_object_name = 'client'
 
@@ -241,7 +244,6 @@ class ClientUpdateView(LoginRequiredMixin, UpdateView):
 
     # Вказуємо, куди перенаправляти після успішного збереження
     def get_success_url(self):
-        messages.success(self.request, f"Дані клієнта {self.object.last_name} успішно оновлено.")
         return reverse('client_detail', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
@@ -343,7 +345,8 @@ class AllClientsView(LoginRequiredMixin, ListView):
 
         # Дозволяємо тільки менеджерам та адміністратору:
         if not (user.is_superuser or user.is_manager):
-            raise Http404("У вас немає дозволу на перегляд списку клієнтів.")
+            # raise Http404("У вас немає дозволу на перегляд списку клієнтів.")
+            raise PermissionDenied
 
         # Базовий набір записів: лише клієнти
         queryset = CustomUser.objects.filter(role='client')

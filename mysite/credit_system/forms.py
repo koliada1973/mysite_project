@@ -237,4 +237,10 @@ class CustomUserCreationForm(UserCreationForm):
 class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = CustomUser
-        fields = '__all__'
+        fields = (
+            'first_name', 'last_name', 'middle_name', 'sex',
+            'date_of_birth', 'place_of_birth', 'work_place', 'position',
+            'email', 'phone_number', 'notes', 'IPN',
+            'passport_series', 'passport_number', 'passport_vidan', 'passport_date',
+            'address_registration', 'address_residential'
+        )
