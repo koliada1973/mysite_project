@@ -86,33 +86,48 @@
             </div>
 
 
-            {% if user.is_superuser or user.is_manager %}
-                {% with source=request.GET.source %}
-                    {% if source == 'client_detail' %}
+            <div class="d-flex flex-wrap align-items-center mt-3">
 
-                        <a href="{% url 'client_detail' credit.user.pk %}?source={{ request.GET.list_source }}" class="btn btn-outline-primary mt-3">
-                            Повернутись до картки клієнта
+                {% if user.is_superuser or user.is_manager %}
+                    {% with source=request.GET.source %}
+
+                        {% if source == 'client_detail' %}
+                            <a href="{% url 'client_detail' credit.user.pk %}?source={{ request.GET.list_source }}" class="btn btn-outline-primary me-2 mb-2">
+                                Повернутись до картки клієнта
+                            </a>
+                        {% elif source == 'all_credits_list' %}
+                            <a href="{% url 'all_credits_list' %}" class="btn btn-outline-primary me-2 mb-2">
+                                Повернутись до списку кредитів
+                            </a>
+                        {% else %}
+                            <a href="{% url 'all_credits_list' %}" class="btn btn-outline-primary me-2 mb-2">
+                                Повернутись до списку кредитів
+                            </a>
+                        {% endif %}
+                    {% endwith %}
+
+                {% elif user.is_client %}
+                    <a href="{% url 'user_credits_list' %}" class="btn btn-outline-primary me-2 mb-2">
+                        Повернутись до моїх кредитів
+                    </a>
+                {% endif %}
+
+
+                {% if user.is_superuser or user.is_manager %}
+                    <a href="{% url 'add_payment' credit.pk %}" class="btn btn-primary me-2 mb-2">Додати платіж</a>
+                {% endif %}
+
+
+                {% if user.is_manager or user.is_superuser %}
+                    {% with source=request.GET.source %}
+                        <a href="{% url 'edit_credit' credit.pk %}?source=credit_detail&list_source={{ source }}"
+                           class="btn btn-warning ms-auto mb-2">
+                            Редагувати дані кредиту
                         </a>
+                    {% endwith %}
+                {% endif %}
 
-                    {% elif source == 'all_credits_list' %}
-                        <a href="{% url 'all_credits_list' %}" class="btn btn-outline-primary mt-3">
-                            Повернутись до списку кредитів
-                        </a>
-
-                    {% else %}
-                        <a href="{% url 'all_credits_list' %}" class="btn btn-outline-primary mt-3">
-                            Повернутись до списку кредитів
-                        </a>
-                    {% endif %}
-
-                    <a href="{% url 'add_payment' credit.pk %}" class="btn btn-primary mt-3">Додати платіж</a>
-                {% endwith %}
-            {% elif user.is_client %}
-                {# Для клієнтів завжди повертаємо до їхнього списку кредитів #}
-                <a href="{% url 'user_credits_list' %}" class="btn btn-outline-primary mt-3">
-                    Повернутись до моїх кредитів
-                </a>
-            {% endif %}
+            </div>
 
         </div>
     </div>

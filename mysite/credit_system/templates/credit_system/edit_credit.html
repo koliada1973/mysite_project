@@ -1,0 +1,114 @@
+{% extends "credit_system/base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Редагування кредиту № {{ credit.number }}</h2>
+    <p>Клієнт: {{ credit.user.get_full_name }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+
+
+        <div class="row g-3 align-items-end">
+
+            <div class="col-md-4">
+                {{ form.summa_credit.label_tag }}
+                {{ form.summa_credit }}
+                {% if form.summa_credit.errors %}<div class="text-danger small">{{ form.summa_credit.errors }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-4">
+                {{ form.percent.label_tag }}
+                {{ form.percent }}
+                {% if form.percent.errors %}<div class="text-danger small">{{ form.percent.errors }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-4">
+                {{ form.srok_months.label_tag }}
+                {{ form.srok_months }}
+                {% if form.srok_months.errors %}<div class="text-danger small">{{ form.srok_months.errors }}</div>{% endif %}
+            </div>
+        </div>
+
+
+
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                {{ form.start_date.label_tag }}
+                {{ form.start_date }}
+                {% if form.start_date.errors %}<div class="text-danger small">{{ form.start_date.errors }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-4">
+                {{ form.day_of_pay.label_tag }}
+                {{ form.day_of_pay }}
+                {% if form.day_of_pay.errors %}<div class="text-danger small">{{ form.day_of_pay.errors }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-4">
+                {{ form.plan_pay.label_tag }}
+                {{ form.plan_pay }}
+                {% if form.plan_pay.errors %}<div class="text-danger small">{{ form.plan_pay.errors }}</div>{% endif %}
+            </div>
+        </div>
+
+
+
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                {{ form.ostatok.label_tag }}
+                {{ form.ostatok }}
+                {% if form.ostatok.errors %}<div class="text-danger small">{{ form.ostatok.errors }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-4">
+                {{ form.dolg_percent.label_tag }}
+                {{ form.dolg_percent }}
+                {% if form.dolg_percent.errors %}<div class="text-danger small">{{ form.dolg_percent.errors }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-4">
+                {{ form.last_pay_date.label_tag }}
+                {{ form.last_pay_date }}
+                {% if form.last_pay_date.errors %}<div class="text-danger small">{{ form.last_pay_date.errors }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <div class="form-check">
+                    <label class="form-check-label" for="{{ form.closed.id_for_label }}">
+                         {{ form.closed }}
+                         {{ form.closed.label_tag }}
+                    </label>
+                    {% if form.closed.errors %}<div class="text-danger small">{{ form.closed.errors }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                {{ form.purpose.label_tag }}
+                {{ form.purpose }}
+                {% if form.purpose.errors %}<div class="text-danger small">{{ form.purpose.errors }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-12 mb-3">
+                {{ form.note.label_tag }}
+                {{ form.note }}
+                {% if form.note.errors %}<div class="text-danger small">{{ form.note.errors }}</div>{% endif %}
+            </div>
+        </div>
+
+
+        <button type="submit" class="btn btn-success mt-3">Зберегти зміни</button>
+        <a href="{% url 'credit_detail' pk=credit.pk %}" class="btn btn-secondary mt-3">Скасувати</a>
+    </form>
+</div>
+{% endblock %}

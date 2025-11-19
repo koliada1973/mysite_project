@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import ListView, DetailView, UpdateView
 from credit_system.forms import AddPaymentForm, ClientDetailForm, AddCreditForm, ClientCreationForm, \
-    CustomUserChangeForm
+    CustomUserChangeForm, CreditEditForm
 from credit_system.models import Credit, Payment, CustomUser
 from credit_system.plan_pay import rozrahunok_plan_pay
 from credit_system.services import process_payment
@@ -271,6 +271,35 @@ class ClientUpdateView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['page_title'] = f'Редагування клієнта: {self.object.get_full_name()}'
         return context
+
+class CreditUpdateView(LoginRequiredMixin, View):
+    template_name = 'credit_system/edit_credit.html'
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        self.credit = get_object_or_404(Credit, pk=pk)
+
+        if not (request.user.is_superuser or request.user.is_manager or request.user == self.credit.user):
+            raise PermissionDenied
+
+
+        return super().dispatch(request, pk, *args, **kwargs)
+
+    def get(self, request, pk):
+        form = CreditEditForm(instance=self.credit)
+
+        context = {'form': form, 'credit': self.credit}
+        return render(request, self.template_name, context)
+
+    def post(self, request, pk):
+        form = CreditEditForm(request.POST, instance=self.credit)
+
+        if form.is_valid():
+            form.save()
+            return redirect('credit_detail', pk=pk)
+
+        # Якщо форма невалідна, повертаємо її з помилками
+        context = {'form': form, 'credit': self.credit}
+        return render(request, self.template_name, context)
 
 class UserCreditsView(LoginRequiredMixin, ListView):
     """Для клієнтів показуємо список їх кредитів"""

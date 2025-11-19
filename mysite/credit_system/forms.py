@@ -220,6 +220,38 @@ class AddPaymentForm(forms.Form):
 
         return cleaned_data
 
+class CreditEditForm(forms.ModelForm):
+    start_date = forms.DateField(
+        input_formats=['%Y-%m-%d', ],
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control',
+            'id': 'credit_start_date_picker'
+        },
+            format='%Y-%m-%d'
+        )
+    )
+
+    last_pay_date = forms.DateField(
+        input_formats=['%Y-%m-%d', ],
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control',
+            'id': 'credit_last_pay_date_picker'
+        },
+            format='%Y-%m-%d'
+        )
+    )
+
+    note = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control'})
+    )
+
+    class Meta:
+        model = Credit
+        fields = ('summa_credit', 'percent', 'start_date', 'srok_months', 'day_of_pay',
+                  'purpose', 'note', 'ostatok', 'closed', 'last_pay_date', 'dolg_percent', 'plan_pay')
 
 # Для адмін-панелі
 class CustomUserCreationForm(UserCreationForm):
