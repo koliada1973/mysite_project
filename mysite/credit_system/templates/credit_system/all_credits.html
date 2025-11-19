@@ -23,9 +23,10 @@
                             <tr>
                                 <th>Кредит</th>
                                 <th>Користувач</th>
+                                <th>Видан</th>
                                 <th>Сума</th>
-                                <th>Ставка, %</th>
-                                <th>Дата видачі</th>
+                                {#                                <th>Ставка, %</th>#}
+                                <th>Ост. оплата</th>
                                 <th>Залишок</th>
                                 <th>Статус</th>
                             </tr>
@@ -43,10 +44,11 @@
                                             {{ credit.user.last_name }} {{ credit.user.first_name }}
                                         </a>
                                     </td>
-                                    <td>{{ credit.summa_credit }} грн</td>
-                                    <td>{{ credit.percent }}%</td>
                                     <td>{{ credit.start_date|date:"d.m.Y" }}</td>
-                                    <td>{{ credit.ostatok }} грн</td>
+                                    <td>{{ credit.summa_credit }}</td>
+{#                                    <td>{{ credit.percent }}%</td>#}
+                                    <td>{{ credit.last_pay_date|date:"d.m.Y" }}</td>
+                                    <td>{{ credit.ostatok }}</td>
                                     <td>
                                     {% if credit.closed %}
                                         <span class="badge bg-success">Закритий</span>

@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.shortcuts import render
 from django.views import View
 
@@ -8,7 +10,11 @@ class CalculatorView(View):
     template_name = 'credit_calculator/calculator.html'
 
     def get(self, request):
-        form = CalculatorForm()
+        initial_data = {
+            # 'start_date': date.today()
+            'start_date': date.today().strftime('%Y-%m-%d')
+        }
+        form = CalculatorForm(initial=initial_data)
         return render(request, self.template_name, {'form': form})
 
     def post(self, request):
@@ -35,5 +41,4 @@ class CalculatorView(View):
 
             return render(request, self.template_name, context)
 
-        # Якщо форма невалідна — повертаємо її з помилками
         return render(request, self.template_name, {'form': form})

@@ -179,12 +179,12 @@
 
                             {% if client %}
                                 {# Редагування клієнта: Повертаємось до сторінки деталей поточного клієнта #}
-                                <a href="{% url 'client_detail' client.pk %}" class="btn btn-secondary btn-lg ms-2">
+                                <a href="{% url 'client_detail' client.pk %}?source={{ request.GET.list_source }}" class="btn btn-secondary btn-lg ms-2">
                                     Скасувати
                                 </a>
                             {% else %}
                                 {# Створення клієнта: Повертаємось до загального списку клієнтів #}
-                                <a href="{% url 'all_clients_list' %}" class="btn btn-secondary btn-lg ms-2">
+                                <a href="{% url 'all_clients_list' %}?source={{ request.GET.list_source }}" class="btn btn-secondary btn-lg ms-2">
                                     Скасувати
                                 </a>
                             {% endif %}

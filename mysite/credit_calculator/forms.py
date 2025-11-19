@@ -6,7 +6,7 @@ class CalculatorForm(forms.Form):
     start_date = forms.DateField(
         label="Дата видачі",
         input_formats=["%Y-%m-%d"],
-        initial=date.today,
+        # initial=date.today(),
         widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}))
 
     srok = forms.IntegerField(

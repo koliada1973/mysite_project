@@ -9,7 +9,7 @@
             <p><strong>Доброго дня,  {{ user.first_name }}  {{ user.middle_name }}. <br>Оберіть потрібну опцію</strong></p>
 
             {% if user.is_superuser or user.is_manager %}
-                <a href="{% url 'admin:index' %}" class="btn btn-warning mt-3">Перейти до адмін-панелі</a><br>
+                <a href="{% url 'admin:index' %}" class="btn btn-primary mt-3" style="background-color: #409040;">Перейти до адмін-панелі</a><br>
                 <a href="{% url 'all_credits_list' %}" class="btn btn-primary mt-3">Переглянути всі кредити</a><br>
                 <a href="{% url 'all_clients_list' %}" class="btn btn-primary mt-3">Переглянути всіх клієнтів</a><br>
 

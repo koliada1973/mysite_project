@@ -213,7 +213,7 @@
 
             {% if user.is_manager or user.is_superuser %}
                 <div class="d-flex">
-                    <a href="{% url 'edit_client' client.pk %}" class="btn btn-warning me-2">
+                    <a href="{% url 'edit_client' client.pk %}?source=client_detail&list_source={{ source }}" class="btn btn-warning me-2">
                         Редагувати дані клієнта
                     </a>
                     <a href="{% url 'add_new_credit' client.pk %}" class="btn btn-success">

@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
@@ -70,7 +72,10 @@ class AddCreditView(LoginRequiredMixin, View):
 
     def get(self, request, client_id):
         client = get_object_or_404(CustomUser, pk=client_id, role='client')
-        form = self.form_class()
+
+        initial_data = {'start_date': date.today().strftime('%Y-%m-%d')}
+
+        form = self.form_class(initial=initial_data)
 
         context = {
             'form': form,
@@ -230,7 +235,7 @@ class ClientDetailView(LoginRequiredMixin, DetailView):
 class ClientUpdateView(LoginRequiredMixin, UpdateView):
     """Для менеджерів форма редагування клієнта, створена на основі форми створення клієнта"""
     model = CustomUser
-    # Використовуємо ту саму форму, що і для створення, але без полів пароля, якщо вони не потрібні
+    # Використовуємо ту саму форму, що і для створення, але без полів пароля
     # form_class = ClientCreationForm
     form_class = CustomUserChangeForm
     template_name = 'credit_system/add_new_client.html'  # Використовуємо існуючий шаблон
@@ -244,7 +249,23 @@ class ClientUpdateView(LoginRequiredMixin, UpdateView):
 
     # Вказуємо, куди перенаправляти після успішного збереження
     def get_success_url(self):
-        return reverse('client_detail', kwargs={'pk': self.object.pk})
+        #     return reverse('client_detail', kwargs={'pk': self.object.pk})
+        # Отримуємо pk об'єкта
+        pk = self.object.pk
+
+        # Отримуємо параметр 'list_source' із запиту GET
+        list_source = self.request.GET.get('list_source')
+
+        # Генеруємо URL для client_detail
+        url = reverse('client_detail', kwargs={'pk': pk})
+
+        # Якщо 'list_source' існує, додаємо його як параметр 'source'
+        if list_source:
+            # Тут ми повертаємо на client_detail, передаючи list_source як source
+            return f"{url}?source={list_source}"
+
+        # Якщо 'list_source' не передано, повертаємось до client_detail без параметрів
+        return url
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -326,7 +347,7 @@ class AllCreditsView(LoginRequiredMixin, ListView):
             )
             queryset = queryset.filter(lookup)
 
-        return queryset.order_by('closed', '-start_date')
+        return queryset.order_by('closed', '-number1', '-number2')
 
     # Додаємо запит у контекст, щоб поле пошуку зберігало значення
     def get_context_data(self, **kwargs):
@@ -372,7 +393,7 @@ class AllClientsView(LoginRequiredMixin, ListView):
             # Фільтруємо набір записів за умовами пошуку
             queryset = queryset.filter(lookup)
 
-        return queryset.order_by('-date_joined')
+        return queryset.order_by('last_name', 'first_name', 'middle_name')
 
     # Додаємо запит у контекст, щоб поле пошуку зберігало значення
     def get_context_data(self, **kwargs):

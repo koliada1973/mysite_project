@@ -4,6 +4,7 @@ from django.core.validators import RegexValidator
 from datetime import date
 
 from django.db.models import Max
+from django.urls import reverse
 
 numeric_validator = RegexValidator(     # Валідатор для ІПН — лише 10 цифр (ChatGPT)
     r'^\d{10}$',
@@ -19,6 +20,12 @@ class CustomUser(AbstractUser):
     )
 
     # Далі йдуть поля, яких немає в звичайному User:
+    # Повне ім'я:
+    full_name = models.CharField(
+        max_length=300,
+        verbose_name="Повне ім'я",
+        blank=True
+    )
     # Роль:
     role = models.CharField(
         max_length=10,
@@ -66,9 +73,13 @@ class CustomUser(AbstractUser):
     position = models.CharField(max_length=100, verbose_name="Посада", blank=True)
     notes = models.CharField(max_length=255, verbose_name="Нотатки", blank=True)
 
+    def save(self, *args, **kwargs):
+        """Автоматично генерує та зберігає повне ім'я перед збереженням."""
+        self.full_name = f"{self.last_name} {self.first_name} {self.middle_name}".strip()
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        full_name = f"{self.last_name} {self.first_name} {self.middle_name}".strip()
-        return full_name or self.username
+        return self.full_name or self.username
 
     # Метод перевірки чи є користувач менеджером або адміном:
     @property
@@ -88,6 +99,11 @@ class CustomUser(AbstractUser):
     class Meta:
         verbose_name = "Користувач"
         verbose_name_plural = "Користувачі"
+        ordering = ['last_name', 'first_name']
+
+    # В адмін-панелі додати кнопку Дивитись на сайті:
+    def get_absolute_url(self):
+        return reverse('client_detail', kwargs={'pk': self.pk})
 
 
 class Credit(models.Model):
@@ -97,9 +113,9 @@ class Credit(models.Model):
     number2 = models.IntegerField(verbose_name="Рік видачі", null=True, blank=True)
     number3 = models.CharField(max_length=20, verbose_name="Постфікс/Підрозділ", blank=True)
     summa_credit = models.FloatField(verbose_name="Сума кредиту")
-    percent = models.FloatField(verbose_name="Добова відсоткова ставка (%)")
+    percent = models.FloatField(verbose_name="Відсоткова ставка (%)")
     start_date = models.DateField(verbose_name="Дата видачі")
-    srok_months = models.IntegerField(verbose_name="Термін кредиту (місяці)")
+    srok_months = models.IntegerField(verbose_name="Термін (міс.)")
     day_of_pay = models.IntegerField(default=15, verbose_name="Плановий день оплати")
     purpose = models.CharField(max_length=255, verbose_name="Ціль кредиту", blank=True)
     note = models.TextField(verbose_name="Примітка", blank=True)
@@ -162,6 +178,11 @@ class Credit(models.Model):
         verbose_name = "Кредит"
         verbose_name_plural = "Кредити"
         unique_together = ('number1', 'number2')
+        ordering = ['-number1', '-number2']
+
+    # В адмін-панелі додати кнопку Дивитись на сайті:
+    def get_absolute_url(self):
+        return reverse('credit_detail', kwargs={'pk': self.pk})
 
 
 class Payment(models.Model):
@@ -181,3 +202,4 @@ class Payment(models.Model):
     class Meta:
         verbose_name = "Платіж"
         verbose_name_plural = "Платежі"
+        ordering = ['-date_pay']
